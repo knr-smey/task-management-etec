@@ -1,0 +1,13 @@
+RewriteEngine On
+RewriteBase /
+
+# Block direct access to sensitive folders (if you keep them inside htdocs)
+RedirectMatch 403 ^/(config|includes|logs)/
+
+# If you want uploads to be public, remove uploads from the line above.
+# RedirectMatch 403 ^/uploads/
+
+# Simple router: everything goes through index.php unless it's a real file/folder
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
