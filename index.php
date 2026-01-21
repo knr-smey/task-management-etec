@@ -25,6 +25,7 @@ session_start();
 
 require_once __DIR__ . '/includes/helpers.php';
 require __DIR__ . '/config/app.php';
+require_once __DIR__ . '/config/db.php';
 
 $url = $_GET['url'] ?? '';
 $url = trim((string)$url, '/');
