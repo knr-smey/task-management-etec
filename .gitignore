@@ -29,7 +29,7 @@ storage/uploads/*
 # =========================
 # Database dumps
 # =========================
-*.sql
+#*.sql
 
 # =========================
 # Dependencies (not used, but safe)

@@ -20,9 +20,6 @@ $token = csrf_token();
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login • <?= e(APP_NAME) ?></title>
 
-  <!-- Your custom CSS -->
-  <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css">
-
   <!-- Tailwind -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>

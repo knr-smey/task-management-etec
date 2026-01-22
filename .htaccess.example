@@ -1,8 +1,11 @@
 RewriteEngine On
-RewriteBase /task-management/
+RewriteBase /task-management-etec/
 
-RedirectMatch 403 ^/(config|includes|logs)/
+# Block direct access to sensitive folders
+RewriteRule ^(config|includes|logs)/ - [F,L]
 
+# Router
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.*)$ index.php?url=$1 [L,QSA]
+RewriteRule ^(.+)$ index.php?url=$1 [L,QSA]
+RewriteRule ^$ index.php [L]
