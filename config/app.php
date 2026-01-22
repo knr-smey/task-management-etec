@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-define('APP_NAME', 'Task Management (Normal PHP)');
+define('APP_NAME', 'Task Management');
 define('BASE_URL', '/'); // change if your site is in a subfolder, e.g. '/myapp/'
 
 /**

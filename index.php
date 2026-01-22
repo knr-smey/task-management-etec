@@ -45,11 +45,8 @@ $routes = [
     'tasks/edit' => 'pages/tasks/edit.php',
 
     // API endpoints (POST recommended)
-    'api/login' => 'api/auth_login.php',
-    'api/logout' => 'api/auth_logout.php',
-    'api/task/create' => 'api/task_create.php',
-    'api/task/update' => 'api/task_update.php',
-    'api/task/delete' => 'api/task_delete.php',
+    'api/auth/login' => 'api/auth.php',
+    'api/auth/logout' => 'api/auth.php',
 ];
 
 $file = $routes[$url] ?? null;

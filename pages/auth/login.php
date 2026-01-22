@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 require __DIR__ . '/../../includes/helpers.php';
@@ -6,42 +7,150 @@ require __DIR__ . '/../../config/app.php';
 
 // If already logged in
 if (!empty($_SESSION['user'])) {
-    redirect('dashboard');
+  redirect('dashboard');
 }
 
 $token = csrf_token();
 ?>
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Login • <?= e(APP_NAME) ?></title>
-  <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css">
-</head>
-<body>
-<main class="container">
-  <div class="card">
-    <h2>Login</h2>
-    <p class="small">Demo account (change later): admin@example.com / admin123</p>
 
-    <form method="post" action="<?= e(BASE_URL) ?>api/login">
-      <input type="hidden" name="csrf" value="<?= e($token) ?>">
-      <div class="row">
-        <div>
-          <label>Email</label>
-          <input name="email" type="email" required>
-        </div>
-        <div>
-          <label>Password</label>
-          <input name="password" type="password" required>
-        </div>
+  <!-- Your custom CSS -->
+  <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css">
+
+  <!-- Tailwind -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
+
+  <main class="w-full max-w-md px-4">
+
+    <!-- Card -->
+    <div class="bg-white shadow-xl border border-slate-200 p-8">
+
+      <!-- Title -->
+      <div class="text-center mb-6">
+        <h1 class="text-2xl font-bold text-slate-800">
+          <?= e(APP_NAME) ?>
+        </h1>
+        <p class="text-sm text-slate-500 mt-1">
+          Sign in to your dashboard
+        </p>
       </div>
-      <div style="margin-top:12px;">
-        <button type="submit">Sign in</button>
+
+      <?= e($_GET['test']) ?>
+      <!-- Form -->
+      <form id="loginForm" class="space-y-4">
+        <input type="hidden" name="csrf" value="<?= e($token) ?>">
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+          <input
+            name="email"
+            type="email"
+            required
+            placeholder="you@example.com"
+            class="w-full border border-slate-300 px-3 py-2 text-sm
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+          <input
+            name="password"
+            type="password"
+            required
+            placeholder="••••••••"
+            class="w-full border border-slate-300 px-3 py-2 text-sm
+             focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+
+        <!-- Alert -->
+        <div id="loginAlert" class="hidden text-sm px-3 py-2 border"></div>
+
+        <button
+          id="btnLogin"
+          type="submit"
+          class="w-full mt-2 bg-blue-600 hover:bg-blue-700 cursor-pointer border border-blue-500
+           text-white font-medium py-1.5 transition">
+          Sign In
+        </button>
+      </form>
+
+
+      <!-- Footer -->
+      <div class="mt-6 text-center text-xs text-slate-500">
+        © <?= date('Y') ?> <?= e(APP_NAME) ?>. All rights reserved.
       </div>
-    </form>
-  </div>
-</main>
+
+    </div>
+  </main>
+
 </body>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script>
+  const BASE_URL = "<?= e(BASE_URL) ?>";
+
+  const $form = $("#loginForm");
+  const $btn = $("#btnLogin");
+  const $alert = $("#loginAlert");
+
+  function showAlert(msg, ok = false) {
+    $alert
+      .text(msg)
+      .removeClass("hidden")
+      .toggleClass("border-red-300 text-red-700 bg-red-50", !ok)
+      .toggleClass("border-green-300 text-green-700 bg-green-50", ok);
+  }
+
+  function setLoading(isLoading) {
+    $btn
+      .prop("disabled", isLoading)
+      .text(isLoading ? "Signing in..." : "Sign In")
+      .toggleClass("opacity-70 cursor-not-allowed", isLoading);
+  }
+
+  $form.on("submit", function(e) {
+    e.preventDefault();
+
+    $alert.addClass("hidden");
+    setLoading(true);
+
+    $.ajax({
+      url: BASE_URL + "api/auth/login",
+      method: "POST",
+      data: $form.serialize(),
+      dataType: "json",
+      xhrFields: {
+        withCredentials: true
+      },
+
+      success(res) {
+        if (!res.status) {
+          showAlert(res.message || "Login failed");
+          setLoading(false);
+          return;
+        }
+
+        showAlert(res.message || "Login successful", true);
+
+        const redirectTo = res.data?.redirect || "dashboard";
+        window.location.href = BASE_URL + redirectTo;
+      },
+
+      error(xhr) {
+        console.error(xhr.responseText);
+        showAlert("Server error. Check PHP error log.");
+        setLoading(false);
+      }
+    });
+  });
+</script>
+
 </html>

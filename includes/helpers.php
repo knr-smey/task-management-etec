@@ -48,3 +48,12 @@ if (!function_exists('csrf_check')) {
         }
     }
 }
+
+if (!function_exists('verify_csrf')) {
+    function verify_csrf(string $token): bool
+    {
+        $sess = $_SESSION['csrf'] ?? '';
+        if (!$sess || !$token) return false;
+        return hash_equals((string)$sess, (string)$token);
+    }
+}
