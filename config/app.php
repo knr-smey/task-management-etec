@@ -1,11 +1,9 @@
 <?php
+
 declare(strict_types=1);
 
-define('APP_NAME', 'Task Management');
-define('BASE_URL', '/task-management-etec/'); // change if your site is in a subfolder, e.g. '/myapp/'
+defined('APP_NAME') || define('APP_NAME', 'Task Management');
 
-/**
- * If you keep config OUTSIDE htdocs on byte.host, update these requires:
- * - In index.php: require __DIR__.'/../config/app.php';
- * - In includes/db.php: require __DIR__.'/../../config/db.php';
- */
+// ✅ auto BASE_URL
+$path = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/\\') . '/';
+defined('BASE_URL') || define('BASE_URL', $path === '//' ? '/' : $path);

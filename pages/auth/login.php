@@ -90,21 +90,13 @@ $token = csrf_token();
   </main>
 
 </body>
+<script src="<?= e(BASE_URL) ?>assets/js/alert.js"></script>
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
   const BASE_URL = "<?= e(BASE_URL) ?>";
 
   const $form = $("#loginForm");
   const $btn = $("#btnLogin");
-  const $alert = $("#loginAlert");
-
-  function showAlert(msg, ok = false) {
-    $alert
-      .text(msg)
-      .removeClass("hidden")
-      .toggleClass("border-red-300 text-red-700 bg-red-50", !ok)
-      .toggleClass("border-green-300 text-green-700 bg-green-50", ok);
-  }
 
   function setLoading(isLoading) {
     $btn
@@ -116,7 +108,7 @@ $token = csrf_token();
   $form.on("submit", function(e) {
     e.preventDefault();
 
-    $alert.addClass("hidden");
+    hideAlert("#loginAlert");
     setLoading(true);
 
     $.ajax({
@@ -130,24 +122,27 @@ $token = csrf_token();
 
       success(res) {
         if (!res.status) {
-          showAlert(res.message || "Login failed");
+          showAlert("#loginAlert", res.message || "Login failed");
           setLoading(false);
           return;
         }
 
-        showAlert(res.message || "Login successful", true);
+        showAlert("#loginAlert", res.message || "Login successful", true);
 
         const redirectTo = res.data?.redirect || "dashboard";
-        window.location.href = BASE_URL + redirectTo;
+        setTimeout(() => {
+          window.location.href = BASE_URL + redirectTo;
+        }, 500);
       },
 
       error(xhr) {
         console.error(xhr.responseText);
-        showAlert("Server error. Check PHP error log.");
+        showAlert("#loginAlert", "Server error. Check PHP error log.");
         setLoading(false);
       }
     });
   });
 </script>
+
 
 </html>
