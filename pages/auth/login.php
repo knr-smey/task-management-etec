@@ -40,8 +40,6 @@ $token = csrf_token();
           Sign in to your dashboard
         </p>
       </div>
-
-      <?= e($_GET['test']) ?>
       <!-- Form -->
       <form id="loginForm" class="space-y-4">
         <input type="hidden" name="csrf" value="<?= e($token) ?>">
@@ -79,7 +77,10 @@ $token = csrf_token();
           Sign In
         </button>
       </form>
-
+    <p class="text-center text-gray-600 mt-6">
+            Don`t have an account?
+            <a href="<?= e(BASE_URL) ?>register" class="text-indigo-600 hover:text-indigo-700 font-semibold">Sign up</a>
+        </p>
 
       <!-- Footer -->
       <div class="mt-6 text-center text-xs text-slate-500">

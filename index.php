@@ -35,9 +35,7 @@ $url = trim((string)$url, '/');
  * Map URL -> PHP file inside pages/
  */
 $routes = [
-    '' => 'pages/auth/login.php',
-    'login' => 'pages/auth/login.php',
-    'logout' => 'pages/auth/logout.php',
+    
 
     'dashboard' => 'pages/dashboard/index.php',
     'tasks' => 'pages/tasks/list.php',
@@ -46,11 +44,13 @@ $routes = [
 
     // API endpoints (POST recommended)
     'api/auth/login' => 'api/auth.php',
+    'api/auth/register' => 'api/auth.php',
     'api/auth/logout' => 'api/auth.php',
 ];
-
+$authRoutes = require __DIR__ . '/routes/auth.php';
+$superAdminRoutes=require __DIR__ . '/routes/superAdmin.php';
+$routes = array_merge($routes, $authRoutes,$superAdminRoutes);
 $file = $routes[$url] ?? null;
-
 if ($file && file_exists(__DIR__ . '/' . $file)) {
     require __DIR__ . '/' . $file;
     exit;

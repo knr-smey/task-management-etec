@@ -13,17 +13,12 @@ require_once __DIR__ . '/../app/Controllers/SuperAdminController.php';
 // detect route from router (?url=...)
 $route = trim((string)($_GET['url'] ?? ''), '/');
 
-if ($route === 'api/auth/login') {
-    AuthController::login();
+if ($route === 'member') {
+    SuperAdminController::getMember();
     exit;
 }
-if ($route === 'api/auth/register') {
-    AuthController::register();
-    exit;
-}
-
-if ($route === 'api/auth/logout') {
-    AuthController::logout(); // make sure method name matches your controller
+if ($route === 'create-member') {
+    SuperAdminController::create();
     exit;
 }
 

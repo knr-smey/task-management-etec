@@ -75,7 +75,71 @@ class AuthController
             'redirect' => 'dashboard'
         ]);
     }
+    public static function register(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ResponseService::json(false, 'Invalid request method', [], 405);
+        }
 
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+        }
+        $name     = htmlspecialchars(trim($_POST['name'] ?? ''));
+        $emailRaw = trim($_POST['email'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $course   = htmlspecialchars(trim($_POST['course'] ?? ''));
+        if ($name === '') {
+            ResponseService::json(false, 'Name is required', [], 422);
+        }
+        if (!filter_var($emailRaw, FILTER_VALIDATE_EMAIL)) {
+            ResponseService::json(false, 'Invalid email format', [], 422);
+        }
+        $email = $emailRaw;
+
+        if ($password === '') {
+            ResponseService::json(false, 'Password is required', [], 422);
+        }
+        if ($course === '') {
+            ResponseService::json(false, 'Course is required', [], 422);
+        }
+        global $conn;
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+        if (!$stmt) {
+            ResponseService::json(false, 'Database error: ' . $conn->error, [], 500);
+        }
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result->num_rows > 0) {
+            ResponseService::json(false, 'Email already exists', [], 422);
+        }
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+        $stmt = $conn->prepare("
+            INSERT INTO users (name, email, password_hash, course, is_active)
+            VALUES (?, ?, ?, ?, 1)
+        ");
+        if (!$stmt) {
+            ResponseService::json(false, 'Database error: ' . $conn->error, [], 500);
+        }
+        $stmt->bind_param('ssss', $name, $email, $passwordHash, $course);
+        if ($stmt->execute()) {
+            $userId = $conn->insert_id;
+            $roleId = 4;
+            $stmtRole = $conn->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)");
+            if ($stmtRole) {
+                $stmtRole->bind_param('ii', $userId, $roleId);
+                $stmtRole->execute();
+            }
+            ResponseService::json(true, 'Register successful', [
+                'redirect' => 'login'
+            ]);
+        } else {
+            ResponseService::json(false, 'Database error: ' . $stmt->error, [], 500);
+        }
+    }
     public static function logout(): void
     {
         session_destroy();
