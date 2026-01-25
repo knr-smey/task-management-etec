@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-require __DIR__ . '/../includes/helpers.php';
+// require __DIR__ . '/../includes/helpers.php';
 require __DIR__ . '/../config/app.php';
 ?>
 <!doctype html>
@@ -14,9 +14,8 @@ require __DIR__ . '/../config/app.php';
 <body>
 <main class="container">
   <div class="card">
-    <h2>404 Not Found</h2>
-    <p class="small">The page you requested doesn’t exist.</p>
-    <p><a href="<?= e(BASE_URL) ?>login">Go to login</a></p>
+    <h2>You don`t have permision.</h2>
+
   </div>
 </main>
 </body>

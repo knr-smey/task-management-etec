@@ -10,10 +10,14 @@ class SuperAdminController
 {
     public static function getMember()
     {
-        $members = User::all();
+        $currentUser = $_SESSION['user'] ?? [];
+        $members = User::all($currentUser);
+        
         require __DIR__ . '/../../pages/superAdmin/member.php';
     }
-    public static function create(){
+    public static function create()
+    {
+        $id=$_POST['hide_id'];
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             ResponseService::json(false, 'Invalid request method', [], 405);
         }
@@ -35,25 +39,48 @@ class SuperAdminController
         }
         $email = $emailRaw;
 
-        if ($password === '') {
+        if ($password == '') {
             ResponseService::json(false, 'Password is required', [], 422);
         }
         if ($type === '') {
             ResponseService::json(false, 'type is required', [], 422);
         }
         $passwordHash = password_hash($password, PASSWORD_BCRYPT);
-        $request=[
-            'name'=>$name,
-            'email'=>$email,
-            'password'=>$passwordHash,
-            'status'=>$status,
-            'role'=>$role,
-            'type'=>$type
+        $request = [
+            'name' => $name,
+            'email' => $email,
+            'password' => $passwordHash,
+            'status' => $status,
+            'role' => $role,
+            'type' => $type
         ];
-        $res=User::create($request);
-        if($res){
-            ResponseService::json(true, 'Create user successful', []);
+        if($id==''){
+            $res = User::create($request);
+        }else{
+            $res=User::update((int)$id,$request);
         }
         
+        if ($res) {
+            ResponseService::json(true, 'Create user successful', []);
+        }
+    }
+    public static function deleteMember()
+    {
+        $id = $_POST['delete_id'] ?? null;
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+            exit;
+        }
+        if (!$id) {
+            ResponseService::json(false, 'ID is required', [], 422);
+            exit;
+        }
+        $isDelete = User::delete((int)$id);
+        if ($isDelete) {
+            ResponseService::json(true, 'Delete user successful', []);
+        } else {
+            ResponseService::json(false, 'User not found or delete failed', []);
+        }
+        exit;
     }
 }

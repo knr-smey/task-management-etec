@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../../includes/helpers.php';
+// require __DIR__ . '/../../includes/helpers.php';
 require __DIR__ . '/../../config/app.php';
 
 // If already logged in

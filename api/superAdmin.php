@@ -21,6 +21,10 @@ if ($route === 'create-member') {
     SuperAdminController::create();
     exit;
 }
+if ($route === 'delete-member') {
+    SuperAdminController::deleteMember();
+    exit;
+}
 
 // fallback
 ResponseService::json(false, 'Not found', [], 404);

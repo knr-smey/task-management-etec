@@ -10,7 +10,9 @@ declare(strict_types=1);
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= e(APP_NAME) ?></title>
   <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css">
+  <link rel="icon" href="<?= e(BASE_URL) ?>public/Image/KRUSolutionLogo.png">
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 </head>
 <style>
   .sidebar-item {
@@ -30,7 +32,7 @@ declare(strict_types=1);
   <nav class="bg-blue-900 text-white px-4 py-3 flex items-center justify-between sticky top-0">
     <div class="flex items-center gap-4">
       <div class="flex items-center gap-2">
-        <span class="text-sm">KRU Solution</span>
+        <span class="text-sm font-bold">KRU Solution</span>
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
@@ -41,11 +43,6 @@ declare(strict_types=1);
                 </svg>
             </button> -->
     </div>
-
-    <div class="flex items-center gap-2">
-      <span class="text-xl font-bold">KRU Solution</span>
-    </div>
-
     <div class="flex items-center gap-4">
       <div class="relative">
         <input type="text" placeholder="Search ..." class="bg-blue-800 text-white px-4 py-2 rounded border border-blue-700 w-64 placeholder-blue-300 focus:outline-none focus:border-blue-500">
@@ -55,11 +52,20 @@ declare(strict_types=1);
           </svg>
         </button>
       </div>
-      <button class="p-2 hover:bg-blue-800 rounded">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-        </svg>
-      </button>
+      <?php
+      $user = $_SESSION['user'] ?? null;
+      foreach ($user['roles'] as $role) {
+        if ($role != "member") {
+          echo ' <a href="' . e(BASE_URL) . 'create-project" class="p-2 bg-green-600 rounded-full hover:bg-green-700 cursor-pointer" title="create project">
+         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+    </svg>
+      </a>';
+        }
+      }
+
+      ?>
+
       <div class="relative">
         <button class="p-2 hover:bg-blue-800 rounded">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -135,12 +141,21 @@ declare(strict_types=1);
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </a>
-        <a href="<?= e(BASE_URL) ?>member" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded cursor-pointer">
+        <?php
+        $user = $_SESSION['user'] ?? null;
+        foreach ($user['roles'] as $role) {
+          if ($role != "member") {
+            echo '<a href="' . e(BASE_URL) . 'member" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
           <span>Members</span>
-        </a>
+        </a>';
+          }
+        }
+
+        ?>
+
       </div>
     </aside>
     <!-- <header class="topbar">
