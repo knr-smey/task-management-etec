@@ -7,9 +7,11 @@ require __DIR__ . '/../../config/app.php';
 require __DIR__ . '/../../includes/auth.php';
 
 $user = $_SESSION['user'];
-require __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/header.php';
+require_once __DIR__ . '/../../includes/navbar.php';
+require_once __DIR__ . '/../../includes/sidebar.php';
 ?>
-<div class="p-8">
+<main class="ms-60 mt-[9vh] p-8 min-h-[91vh] bg-slate-50">
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-semibold text-gray-800">Members</h1>
         <button class="bg-green-500 text-white px-4 py-2 rounded flex items-center cursor-pointer gap-2 hover:bg-green-600 transition" onclick="openModal()" id="addMember">
@@ -64,8 +66,8 @@ require __DIR__ . '/../../includes/header.php';
             </tbody>
         </table>
     </div>
-</div>
 </main>
+<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
 <div id="modal" class="fixed bg-[#727272b6] inset-0 hidden items-center justify-center z-50 p-4">
     <!-- Modal Container -->
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg transform transition-all duration-300 scale-95 opacity-0" id="modalContent">

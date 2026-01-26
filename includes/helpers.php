@@ -1,41 +1,67 @@
 <?php
+
 declare(strict_types=1);
 
+/**
+ * helpers.php
+ * - Always include config/app.php BEFORE this file (BASE_URL must exist)
+ * - Use require_once to avoid redeclare
+ */
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+/** Escape output */
 if (!function_exists('e')) {
-    function e(?string $str): string {
+    function e(?string $str): string
+    {
         return htmlspecialchars($str ?? '', ENT_QUOTES, 'UTF-8');
     }
 }
 
+/** Redirect */
 if (!function_exists('redirect')) {
-    function redirect(string $path): void {
-        $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
-        header('Location: ' . $base . '/' . ltrim($path, '/'));
+    function redirect(string $path): void
+    {
+        header('Location: ' . BASE_URL . ltrim($path, '/'));
         exit;
     }
 }
 
+/** JSON response */
 if (!function_exists('json_response')) {
-    function json_response(bool $ok, string $message = '', array $data = []): void {
+    function json_response(bool $ok, string $message = '', array $data = [], int $code = 200): void
+    {
+        http_response_code($code);
         header('Content-Type: application/json; charset=utf-8');
-        echo json_encode(['ok' => $ok, 'message' => $message, 'data' => $data]);
+        echo json_encode([
+            'status'  => $ok,
+            'message' => $message,
+            'data'    => $data
+        ]);
         exit;
     }
 }
 
+/** CSRF token generator */
 if (!function_exists('csrf_token')) {
-    function csrf_token(): string {
+    function csrf_token(): string
+    {
         if (empty($_SESSION['csrf'])) {
             $_SESSION['csrf'] = bin2hex(random_bytes(32));
         }
-        return (string)$_SESSION['csrf'];
+        return (string) $_SESSION['csrf'];
     }
 }
 
+/** CSRF hard check (exit on fail) */
 if (!function_exists('csrf_check')) {
-    function csrf_check(): void {
+    function csrf_check(): void
+    {
         $sess = $_SESSION['csrf'] ?? '';
         $post = $_POST['csrf'] ?? '';
+
         if (!$sess || !$post || !hash_equals((string)$sess, (string)$post)) {
             http_response_code(403);
             exit('CSRF blocked');
@@ -43,64 +69,79 @@ if (!function_exists('csrf_check')) {
     }
 }
 
+/** CSRF verify (return bool) */
 if (!function_exists('verify_csrf')) {
-    function verify_csrf(string $token): bool {
+    function verify_csrf(string $token): bool
+    {
         $sess = $_SESSION['csrf'] ?? '';
         if (!$sess || !$token) return false;
         return hash_equals((string)$sess, (string)$token);
     }
 }
 
-function userHasRole(array $user, string $role): bool {
-    $roles = $user['roles'] ?? [];
-    if (!is_array($roles)) $roles = explode(',', (string)$roles);
-    $roles = array_map('trim', $roles);
-    return in_array($role, $roles, true);
+/** Role helpers */
+if (!function_exists('userHasRole')) {
+    function userHasRole(array $user, string $role): bool
+    {
+        $roles = $user['roles'] ?? [];
+        if (!is_array($roles)) $roles = explode(',', (string)$roles);
+        $roles = array_map('trim', $roles);
+        return in_array($role, $roles, true);
+    }
 }
 
 /**
- * Determine highest role from a roles array
+ * Determine highest role from roles array
  * Priority: super_admin > admin > instructor > member
  */
-function highestRole(array $roles): ?string {
-    $priority = ['super_admin', 'admin', 'instructor', 'member'];
-    foreach ($priority as $r) {
-        if (in_array($r, $roles, true)) return $r;
-    }
-    return null;
-}
-
-function accessRoles(string $highestRole): array {
-    $map = [
-        'super_admin' => ['super_admin', 'admin', 'instructor', 'member'],
-        'admin'       => ['admin', 'instructor', 'member'],
-        'instructor'  => ['instructor', 'member'],
-        'member'      => ['member'],
-    ];
-    return $map[$highestRole] ?? [];
-}
-
-function mergeRoleRoutes(array $userRoles, array $roleRouteFiles): array {
-    // (still available if you want)
-    $routes = [];
-    foreach ($userRoles as $role) {
-        $role = trim((string)$role);
-        if (isset($roleRouteFiles[$role]) && file_exists($roleRouteFiles[$role])) {
-            $routes = array_merge($routes, require $roleRouteFiles[$role]);
+if (!function_exists('highestRole')) {
+    function highestRole(array $roles): ?string
+    {
+        $priority = ['super_admin', 'admin', 'instructor', 'member'];
+        foreach ($priority as $r) {
+            if (in_array($r, $roles, true)) return $r;
         }
+        return null;
     }
-    return $routes;
 }
 
-function getDefaultDashboard(array $user): string {
-    $base = defined('BASE_URL') ? rtrim(BASE_URL, '/') : '';
+if (!function_exists('accessRoles')) {
+    function accessRoles(string $highestRole): array
+    {
+        $map = [
+            'super_admin' => ['super_admin', 'admin', 'instructor', 'member'],
+            'admin'       => ['admin', 'instructor', 'member'],
+            'instructor'  => ['instructor', 'member'],
+            'member'      => ['member'],
+        ];
+        return $map[$highestRole] ?? [];
+    }
+}
 
-    // You can keep /dashboard for all if that's your project
-    // But this version supports different dashboards if you have them
-    if (userHasRole($user, 'super_admin')) return $base . 'dashboard';
-    if (userHasRole($user, 'admin'))       return $base . 'dashboard';
-    if (userHasRole($user, 'instructor'))  return $base . 'dashboard';
-    if (userHasRole($user, 'member'))      return $base . 'dashboard';
+/** Merge routes based on roles (optional) */
+if (!function_exists('mergeRoleRoutes')) {
+    function mergeRoleRoutes(array $userRoles, array $roleRouteFiles): array
+    {
+        $routes = [];
+        foreach ($userRoles as $role) {
+            $role = trim((string)$role);
+            if (isset($roleRouteFiles[$role]) && file_exists($roleRouteFiles[$role])) {
+                $routes = array_merge($routes, require $roleRouteFiles[$role]);
+            }
+        }
+        return $routes;
+    }
+}
 
-    return $base . 'login';
+/** Default dashboard path */
+if (!function_exists('getDefaultDashboard')) {
+    function getDefaultDashboard(array $user): string
+    {
+        if (userHasRole($user, 'super_admin')) return BASE_URL . 'dashboard';
+        if (userHasRole($user, 'admin'))       return BASE_URL . 'dashboard';
+        if (userHasRole($user, 'instructor'))  return BASE_URL . 'dashboard';
+        if (userHasRole($user, 'member'))      return BASE_URL . 'dashboard';
+
+        return BASE_URL . 'login';
+    }
 }
