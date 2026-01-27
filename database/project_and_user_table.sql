@@ -16,5 +16,7 @@ CREATE TABLE project_members (
     ON DELETE CASCADE
 );
 
--- drop coloum Team_id
-ALTER TABLE projects DROP COLUMN team_id;
+ALTER TABLE projects
+DROP FOREIGN KEY fk_projects_team,
+DROP INDEX idx_projects_team,
+DROP COLUMN team_id;
