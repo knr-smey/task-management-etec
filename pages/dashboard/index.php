@@ -14,7 +14,7 @@ require __DIR__ . '/../../includes/navbar.php';
 require __DIR__ . '/../../includes/sidebar.php';
 ?>
 
-<main class="ms-60 mt-[9vh] p-6 overflow-y-auto min-h-[91vh] bg-white">
+<main class="ms-60 mt-[9vh] overflow-y-auto min-h-[91vh] bg-white">
   <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
 
   <!-- page content here -->

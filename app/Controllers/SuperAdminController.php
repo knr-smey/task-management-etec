@@ -13,6 +13,7 @@ class SuperAdminController
     {
         $currentUser = $_SESSION['user'] ?? [];
         $members = User::all($currentUser);
+
         require __DIR__ . '/../../pages/superAdmin/member.php';
     }
 

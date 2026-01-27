@@ -23,47 +23,63 @@ class User
     {
         global $conn;
 
-        $sql = "SELECT u.id, u.name, u.email, u.course, u.is_active, u.created_at,
-                       GROUP_CONCAT(r.name) AS roles
-                FROM users u
-                LEFT JOIN user_roles ur ON ur.user_id = u.id
-                LEFT JOIN roles r ON r.id = ur.role_id";
+        $sql = "
+        SELECT 
+            u.id,
+            u.name,
+            u.email,
+            u.course,
+            u.is_active,
+            u.created_at,
+            GROUP_CONCAT(DISTINCT r.name) AS roles
+        FROM users u
+        LEFT JOIN user_roles ur ON ur.user_id = u.id
+        LEFT JOIN roles r ON r.id = ur.role_id
+        LEFT JOIN team_members tm ON tm.user_id = u.id
+    ";
 
+        $where  = [];
         $params = [];
         $types  = '';
-        $where  = [];
 
+        // 🔐 ROLE RULES
         if (userHasRole($currentUser, 'super_admin')) {
             // see all
         } elseif (userHasRole($currentUser, 'admin')) {
-            $where[] = "r.name IN ('instructor', 'member')";
+            $where[] = "r.name IN ('instructor','member')";
         } elseif (userHasRole($currentUser, 'instructor')) {
+            // instructor → members in his teams
             $where[] = "r.name = 'member'";
-            // if you have instructor_id column in users, keep this:
-            $where[] = "u.instructor_id = ?";
+            $where[] = "tm.team_id IN (
+            SELECT team_id FROM team_members WHERE user_id = ?
+        )";
+            $params[] = (int)$currentUser['id'];
+            $types .= 'i';
+        } elseif (userHasRole($currentUser, 'member')) {
+            // member → same team
+            $where[] = "tm.team_id IN (
+            SELECT team_id FROM team_members WHERE user_id = ?
+        )";
             $params[] = (int)$currentUser['id'];
             $types .= 'i';
         } else {
             return [];
         }
 
-        if (!empty($where)) {
-            $sql .= " WHERE " . implode(' AND ', $where);
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
         }
 
-        $sql .= " GROUP BY u.id ORDER BY u.id ASC";
+        $sql .= ' GROUP BY u.id ORDER BY u.id ASC';
 
-        if (!empty($params)) {
+        if ($params) {
             $stmt = $conn->prepare($sql);
-            if (!$stmt) return [];
             $stmt->bind_param($types, ...$params);
             $stmt->execute();
-            $res = $stmt->get_result();
-            return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
 
-        $res = $conn->query($sql);
-        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        return $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
     }
 
     public static function create(array $data): ?int

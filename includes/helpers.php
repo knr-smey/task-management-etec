@@ -83,12 +83,19 @@ if (!function_exists('verify_csrf')) {
 if (!function_exists('userHasRole')) {
     function userHasRole(array $user, string $role): bool
     {
-        $roles = $user['roles'] ?? [];
-        if (!is_array($roles)) $roles = explode(',', (string)$roles);
-        $roles = array_map('trim', $roles);
+        if (!isset($user['roles'])) return false;
+
+        $roles = $user['roles'];
+
+        // from SQL: "admin,member"
+        if (is_string($roles)) {
+            $roles = array_map('trim', explode(',', $roles));
+        }
+
         return in_array($role, $roles, true);
     }
 }
+
 
 /**
  * Determine highest role from roles array
@@ -143,5 +150,35 @@ if (!function_exists('getDefaultDashboard')) {
         if (userHasRole($user, 'member'))      return BASE_URL . 'dashboard';
 
         return BASE_URL . 'login';
+    }
+}
+
+if (!function_exists('currentPath')) {
+    function currentPath(): string
+    {
+        $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+
+        // remove project base folder (e.g. /task-management-etec)
+        $base = parse_url(BASE_URL, PHP_URL_PATH);
+
+        if ($base && str_starts_with($path, $base)) {
+            $path = substr($path, strlen($base));
+        }
+
+        return '/' . trim($path, '/');
+    }
+}
+
+if (!function_exists('isActive')) {
+    function isActive(string $path): bool
+    {
+        return currentPath() === '/' . trim($path, '/');
+    }
+}
+
+if (!function_exists('layout')) {
+    function layout(string $name): string
+    {
+        return __DIR__ . "/../layouts/{$name}.php";
     }
 }

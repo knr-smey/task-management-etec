@@ -2,29 +2,46 @@
 $user = $_SESSION['user'] ?? null;
 ?>
 
-<nav class="bg-blue-900 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-50">
-    <div class="flex items-center gap-4">
-        <span class="text-sm font-bold">KRU Solution</span>
+<nav class="bg-blue-900 text-white px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md">
+    <!-- Left -->
+    <div class="flex items-center gap-3">
+        <span class="text-lg font-semibold tracking-wide">
+            KRU <span class="text-blue-300">Solution</span>
+        </span>
     </div>
 
+    <!-- Right -->
     <div class="flex items-center gap-4">
-        <input
-            type="text"
-            placeholder="Search ..."
-            class="bg-blue-800 text-white px-4 py-2 rounded border border-blue-700 w-64 placeholder-blue-300 focus:outline-none">
 
+        <!-- Search -->
+        <div class="relative">
+            <input
+                type="text"
+                placeholder="Search..."
+                class="bg-blue-800 text-white px-4 py-2 pl-10 rounded-lg border border-blue-700 w-64
+                       placeholder-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <span class="absolute left-3 top-2.5 text-blue-300">🔍</span>
+        </div>
+
+        <!-- Create Project (only non-member) -->
         <?php foreach ($user['roles'] ?? [] as $role): ?>
             <?php if ($role !== 'member'): ?>
-                <a href="<?= e(BASE_URL) ?>create-project"
-                    class="p-2 bg-green-600 rounded-full hover:bg-green-700"
-                    title="Create project">
-                    +
-                </a>
+                <button
+                    onclick="openCreateProjectModal()"
+                    class="flex items-center gap-1 px-4 py-2 bg-green-600 rounded-lg
+                           hover:bg-green-700 transition font-medium shadow">
+                    <span class="text-lg">+</span>
+                    <span>Project</span>
+                </button>
+                <?php break; ?>
             <?php endif; ?>
         <?php endforeach; ?>
 
-        <div class="w-10 h-10 bg-green-400 rounded-full flex items-center justify-center font-bold">
-            NS
+        <!-- Avatar -->
+        <div
+            class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center
+                   font-bold text-sm shadow cursor-pointer">
+            <?= strtoupper(substr($user['name'] ?? 'NS', 0, 2)) ?>
         </div>
     </div>
 </nav>
