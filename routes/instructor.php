@@ -1,6 +1,14 @@
-<?php 
-
+<?php
 return [
-    'member' => 'api/superAdmin.php',
-    'create-project'=>'pages/instructor/create.php'
+    // members
+    'member' => 'api/member.php',
+    'create-member' => 'api/member.php',
+    'delete-member' => 'api/member.php',
+
+    // projects (API)
+    'projects'        => 'api/project.php',
+    'project'         => 'api/project.php',
+    'create-project'  => 'api/project.php',
+    'update-project'  => 'api/project.php',
+    'delete-project'  => 'api/project.php',
 ];
