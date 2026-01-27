@@ -71,15 +71,5 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
 <?php require __DIR__ . '/../../pages/components/deleteModal.php'; ?>
 
 <!-- footer -->
-<?php require_once __DIR__ . '/../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/layouts/app-footer.php'; ?>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
-<script src="<?= e(BASE_URL) ?>assets/js/app.js"></script>
-<script src="<?= e(BASE_URL) ?>assets/js/confirm-delete-modal.js"></script>
-
-<script>
-    window.BASE_URL = "<?= e(BASE_URL) ?>";
-    window.ROLE_MEMBER = "<?= (int)User::ROLE_MEMBER ?>";
-</script>
-
-<script src="<?= e(BASE_URL) ?>assets/js/member-modal.js"></script>

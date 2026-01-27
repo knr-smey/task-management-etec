@@ -1,50 +1,85 @@
 <?php
-
 declare(strict_types=1);
 
 class Project
 {
-    public static function all(PDO $db): array
+    public static function allByCreator(int $userId): array
     {
-        $stmt = $db->query("SELECT * FROM projects ORDER BY id DESC");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+        global $conn;
+
+        $stmt = $conn->prepare("SELECT * FROM projects WHERE created_by = ? ORDER BY id DESC");
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
     }
 
-    public static function find(PDO $db, int $id): ?array
+    public static function find(int $id): ?array
     {
-        $stmt = $db->prepare("SELECT * FROM projects WHERE id = :id LIMIT 1");
-        $stmt->execute(['id' => $id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-        return $row ?: null;
+        global $conn;
+
+        $stmt = $conn->prepare("SELECT * FROM projects WHERE id = ? LIMIT 1");
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+
+        $res = $stmt->get_result()->fetch_assoc();
+        return $res ?: null;
     }
 
-    public static function create(PDO $db, array $data): int
+    public static function create(array $data): ?int
     {
-        $sql = "INSERT INTO projects (name, description, status, created_by, start_date, end_date, created_at)
-                VALUES (:name, :description, :status, :created_by, :start_date, :end_date, NOW())";
-        $stmt = $db->prepare($sql);
-        $stmt->execute($data);
-        return (int)$db->lastInsertId();
+        global $conn;
+
+        $stmt = $conn->prepare("
+            INSERT INTO projects (name, description, status, created_by, start_date, end_date, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, NOW())
+        ");
+        if (!$stmt) return null;
+
+        $stmt->bind_param(
+            'sssiss',
+            $data['name'],
+            $data['description'],
+            $data['status'],
+            $data['created_by'],
+            $data['start_date'],
+            $data['end_date']
+        );
+
+        if (!$stmt->execute()) return null;
+        return $conn->insert_id;
     }
 
-    public static function update(PDO $db, int $id, array $data): bool
+    public static function update(int $id, array $data): bool
     {
-        $sql = "UPDATE projects SET
-                    name = :name,
-                    description = :description,
-                    status = :status,
-                    start_date = :start_date,
-                    end_date = :end_date
-                WHERE id = :id";
-        $data['id'] = $id;
+        global $conn;
 
-        $stmt = $db->prepare($sql);
-        return $stmt->execute($data);
+        $stmt = $conn->prepare("
+            UPDATE projects SET
+                name = ?, description = ?, status = ?,
+                start_date = ?, end_date = ?
+            WHERE id = ?
+        ");
+        if (!$stmt) return false;
+
+        $stmt->bind_param(
+            'sssssi',
+            $data['name'],
+            $data['description'],
+            $data['status'],
+            $data['start_date'],
+            $data['end_date'],
+            $id
+        );
+
+        return $stmt->execute();
     }
 
-    public static function delete(PDO $db, int $id): bool
+    public static function delete(int $id): bool
     {
-        $stmt = $db->prepare("DELETE FROM projects WHERE id = :id");
-        return $stmt->execute(['id' => $id]);
+        global $conn;
+
+        $stmt = $conn->prepare("DELETE FROM projects WHERE id = ?");
+        $stmt->bind_param('i', $id);
+        return $stmt->execute();
     }
 }

@@ -26,10 +26,9 @@ $user = $_SESSION['user'] ?? null;
         <!-- Create Project (only non-member) -->
         <?php foreach ($user['roles'] ?? [] as $role): ?>
             <?php if ($role !== 'member'): ?>
-                <button
-                    onclick="openCreateProjectModal()"
+                <button id="openCreateProjectBtn"
                     class="flex items-center gap-1 px-4 py-2 bg-green-600 rounded-lg
-                           hover:bg-green-700 transition font-medium shadow">
+                            hover:bg-green-700 transition font-medium shadow">
                     <span class="text-lg">+</span>
                     <span>Project</span>
                 </button>

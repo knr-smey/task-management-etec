@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 // boot
@@ -10,7 +9,7 @@ require_once __DIR__ . '/../config/db.php';
 // controller
 require_once __DIR__ . '/../app/Controllers/ProjectsController.php';
 
-// router
+// route
 $route  = trim((string)($_GET['url'] ?? ''), '/');
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 
@@ -35,17 +34,14 @@ if ($route === 'project' && $method === 'GET') {
 
 // update
 if ($route === 'update-project' && $method === 'POST') {
-    $id = (int)($_GET['id'] ?? 0);
-    ProjectsController::update($id);
+    ProjectsController::update();
     exit;
 }
 
 // delete
 if ($route === 'delete-project' && $method === 'POST') {
-    $id = (int)($_GET['id'] ?? 0);
-    ProjectsController::destroy($id);
+    ProjectsController::destroy();
     exit;
 }
 
-// fallback
 ResponseService::json(false, 'Not found', [], 404);
