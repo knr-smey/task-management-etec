@@ -51,12 +51,14 @@ $(document).ready(function () {
   $(document).on("click", ".editProjectBtn", function () {
     const tr = $(this).closest("tr");
 
-    $("#project_id").val(tr.data("id") || "");
+    $("#project_id").val(tr.data("id"));                // ✅ sends id
     $("#project_name").val(tr.data("name") || "");
     $("#project_description").val(tr.data("description") || "");
     $("#project_status").val(tr.data("status") || "active");
-    $("#project_start_date").val(tr.data("start_date") || "");
-    $("#project_end_date").val(tr.data("end_date") || "");
+
+    // ✅ your HTML uses data-start and data-end
+    $("#project_start_date").val(tr.data("start") || "");
+    $("#project_end_date").val(tr.data("end") || "");
 
     $("input[name='action']").val("update-project");
     $("#createProjectTitle").text("Edit Project");
@@ -64,6 +66,7 @@ $(document).ready(function () {
 
     openProjectModal();
   });
+
 
   // ===== SUBMIT (CREATE or UPDATE) =====
   $("#createProjectForm").on("submit", function (e) {
@@ -97,6 +100,15 @@ $(document).ready(function () {
         console.log(xhr.responseText);
         alert("Server error. Check console / php error log");
       }
+    });
+  });
+
+  $(document).on("click", ".deleteBtn", function () {
+    openDeleteModal({
+      id: $(this).data("id"),
+      url: $(this).data("url") || (window.BASE_URL + "delete-project"),
+      title: $(this).data("title") || "Confirm Delete",
+      message: $(this).data("message") || "Are you sure you want to delete this item?",
     });
   });
 });

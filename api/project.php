@@ -20,7 +20,7 @@ if ($route === 'projects' && $method === 'GET') {
 }
 
 // create
-if ($route === 'create-project' && $method === 'POST') {
+if (($route === 'create-project' || $route === 'update-project') && $method === 'POST') {
     ProjectsController::store();
     exit;
 }
@@ -28,15 +28,15 @@ if ($route === 'create-project' && $method === 'POST') {
 // show
 if ($route === 'project' && $method === 'GET') {
     $id = (int)($_GET['id'] ?? 0);
-    ProjectsController::show($id);
+    // ProjectsController::show($id);
     exit;
 }
 
 // update
-if ($route === 'update-project' && $method === 'POST') {
-    ProjectsController::update();
-    exit;
-}
+// if ($route === 'update-project' && $method === 'POST') {
+//     ProjectsController::update();
+//     exit;
+// }
 
 // delete
 if ($route === 'delete-project' && $method === 'POST') {

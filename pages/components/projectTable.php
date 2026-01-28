@@ -1,4 +1,5 @@
 <?php
+
 /**
  * expects:
  * - $projects
@@ -30,8 +31,7 @@
                         data-description="<?= e($p['description'] ?? '') ?>"
                         data-status="<?= e($p['status'] ?? 'active') ?>"
                         data-start="<?= e($p['start_date'] ?? '') ?>"
-                        data-end="<?= e($p['end_date'] ?? '') ?>"
-                    >
+                        data-end="<?= e($p['end_date'] ?? '') ?>">
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="text-sm font-medium text-gray-900"><?= (int)$p['id'] ?></span>
                         </td>
@@ -57,9 +57,8 @@
                             <?php
                             $status = (string)($p['status'] ?? 'active');
                             $statusClass =
-                                $status === 'active' ? 'bg-green-100 text-green-800' :
-                                ($status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                'bg-blue-100 text-blue-800');
+                                $status === 'active' ? 'bg-green-100 text-green-800' : ($status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                    'bg-blue-100 text-blue-800');
                             ?>
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $statusClass ?>">
                                 <?= e($status) ?>
@@ -95,8 +94,11 @@
                                     <!-- DELETE -->
                                     <button
                                         type="button"
-                                        class="deleteProjectBtn inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-500 hover:bg-red-600 transition-colors duration-150 shadow-sm hover:shadow cursor-pointer"
+                                        class="deleteBtn inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-500 hover:bg-red-600"
                                         data-id="<?= (int)$p['id'] ?>"
+                                        data-url="<?= e(BASE_URL) ?>delete-project"
+                                        data-title="Delete Project"
+                                        data-message="Are you sure you want to delete this project?"
                                         title="Delete project">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -118,8 +120,21 @@
 </div>
 
 <style>
-    .overflow-x-auto::-webkit-scrollbar { height: 8px; }
-    .overflow-x-auto::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-    .overflow-x-auto::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 10px; }
-    .overflow-x-auto::-webkit-scrollbar-thumb:hover { background: #a0aec0; }
+    .overflow-x-auto::-webkit-scrollbar {
+        height: 8px;
+    }
+
+    .overflow-x-auto::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+
+    .overflow-x-auto::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 10px;
+    }
+
+    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
+        background: #a0aec0;
+    }
 </style>
