@@ -14,4 +14,6 @@ return [
     'create-project'  => 'api/project.php',
     'update-project'  => 'api/project.php',
     'delete-project'  => 'api/project.php',
+
+    'assign-project-members'  => 'api/project.php',
 ];

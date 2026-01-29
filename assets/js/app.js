@@ -1,4 +1,4 @@
-console.log("app.js loaded ✅");
+// console.log("app.js loaded ✅");
 
 $(document).ready(function () {
   const BASE_URL = window.BASE_URL || ""; // you already set in footer
@@ -111,4 +111,12 @@ $(document).ready(function () {
       message: $(this).data("message") || "Are you sure you want to delete this item?",
     });
   });
+
+  $(document).on("click", "tr.projectRow", function (e) {
+    if ($(e.target).closest("button, a").length) return;
+
+    const href = this.dataset.href;
+    if (href) window.location.href = href;
+  });
+
 });

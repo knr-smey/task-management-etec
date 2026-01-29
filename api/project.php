@@ -25,18 +25,17 @@ if (($route === 'create-project' || $route === 'update-project') && $method === 
     exit;
 }
 
-// show
+// show (DETAIL)
 if ($route === 'project' && $method === 'GET') {
     $id = (int)($_GET['id'] ?? 0);
-    // ProjectsController::show($id);
+    ProjectsController::show($id);
     exit;
 }
 
-// update
-// if ($route === 'update-project' && $method === 'POST') {
-//     ProjectsController::update();
-//     exit;
-// }
+if ($route === 'assign-project-members' && $method === 'POST') {
+    ProjectsController::assignMembers();
+    exit;
+}
 
 // delete
 if ($route === 'delete-project' && $method === 'POST') {

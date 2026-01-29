@@ -82,4 +82,36 @@ class Project
         $stmt->bind_param('i', $id);
         return $stmt->execute();
     }
+    
+    public static function assignMembers(int $projectId, array $memberIds): bool
+    {
+        global $conn;
+
+        $conn->begin_transaction();
+
+        try {
+            $stmt = $conn->prepare("DELETE FROM project_members WHERE project_id = ?");
+            $stmt->bind_param("i", $projectId);
+            $stmt->execute();
+
+            if (!empty($memberIds)) {
+                $stmt = $conn->prepare("
+                INSERT INTO project_members (project_id, user_id)
+                VALUES (?, ?)
+            ");
+
+                foreach ($memberIds as $uid) {
+                    $uid = (int)$uid;
+                    $stmt->bind_param("ii", $projectId, $uid);
+                    $stmt->execute();
+                }
+            }
+
+            $conn->commit();
+            return true;
+        } catch (Throwable $e) {
+            $conn->rollback();
+            return false;
+        }
+    }
 }

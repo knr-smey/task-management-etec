@@ -230,4 +230,23 @@ class User
         $stmt->bind_param('i', $id);
         return $stmt->execute();
     }
+    
+    public static function membersOnly(): array
+    {
+        global $conn;
+
+        $sql = "
+            SELECT 
+                u.id,
+                u.name,
+                u.email
+            FROM users u
+            INNER JOIN user_roles ur ON ur.user_id = u.id
+            INNER JOIN roles r ON r.id = ur.role_id
+            WHERE r.name = 'member'
+            ORDER BY u.name ASC
+        ";
+
+        return $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
+    }
 }

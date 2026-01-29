@@ -25,7 +25,8 @@
 
             <tbody class="divide-y divide-gray-200 bg-white">
                 <?php foreach ($projects as $p): ?>
-                    <tr class="hover:bg-blue-50/50 transition-colors duration-150"
+                    <tr class="projectRow hover:bg-blue-50/50 transition-colors duration-150"
+                        data-href="<?= e(BASE_URL) ?>project?id=<?= (int)$p['id'] ?>"
                         data-id="<?= (int)$p['id'] ?>"
                         data-name="<?= e($p['name']) ?>"
                         data-description="<?= e($p['description'] ?? '') ?>"

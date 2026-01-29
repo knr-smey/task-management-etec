@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../Models/Project.php';
+require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/../Services/ResponseService.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 
@@ -34,6 +35,7 @@ class ProjectsController
         // ✅ choose your page path (example)
         require __DIR__ . '/../../pages/dashboard/index.php';
     }
+    
 
     // ✅ API: create/update (same like member store)
     public static function store(): void
@@ -106,5 +108,53 @@ class ProjectsController
         $ok = Project::delete($id);
         if ($ok) ResponseService::json(true, 'Project deleted', []);
         ResponseService::json(false, 'Delete failed', [], 500);
+    }
+
+    public static function show(int $id): void
+    {
+        $user = self::authorize();
+
+        if ($id <= 0) redirect('projects');
+
+        $project = Project::find($id);
+        if (!$project) redirect('projects');
+
+        // only owner
+        if ((int)$project['created_by'] !== (int)$user['id']) {
+            redirect('projects');
+        }
+
+        // 🔹 get members (role = member only)
+        $members = User::membersOnly();   // 👈 new method
+        $assignedIds = [];                // later use
+        $token = csrf_token();
+
+        require __DIR__ . '/../../pages/projects/show.php';
+    }
+
+    public static function assignMembers(): void
+    {
+        $user = self::authorize();
+
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF', [], 403);
+        }
+
+        $projectId = (int)($_POST['project_id'] ?? 0);
+        $memberIds = $_POST['member_ids'] ?? [];
+
+        if ($projectId <= 0) {
+            ResponseService::json(false, 'Project ID required', [], 422);
+        }
+
+        if (!is_array($memberIds)) $memberIds = [];
+
+        $ok = Project::assignMembers($projectId, $memberIds);
+
+        if ($ok) {
+            ResponseService::json(true, 'Members assigned');
+        }
+
+        ResponseService::json(false, 'Assign failed', [], 500);
     }
 }
