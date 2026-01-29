@@ -3,13 +3,24 @@ declare(strict_types=1);
 
 class Project
 {
-    public static function allByCreator(int $userId): array
+   public static function allByCreator(int $userId): array
     {
         global $conn;
 
-        $stmt = $conn->prepare("SELECT * FROM projects WHERE created_by = ? ORDER BY id DESC");
+        $stmt = $conn->prepare("
+            SELECT 
+                p.*,
+                COUNT(pm.user_id) AS member_count
+            FROM projects p
+            LEFT JOIN project_members pm 
+                ON pm.project_id = p.id
+            WHERE p.created_by = ?
+            GROUP BY p.id
+            ORDER BY p.id DESC
+        ");
         $stmt->bind_param('i', $userId);
         $stmt->execute();
+
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
     }
 
@@ -90,15 +101,14 @@ class Project
         $conn->begin_transaction();
 
         try {
+            // remove all old members first
             $stmt = $conn->prepare("DELETE FROM project_members WHERE project_id = ?");
             $stmt->bind_param("i", $projectId);
             $stmt->execute();
 
+            // insert new selected members
             if (!empty($memberIds)) {
-                $stmt = $conn->prepare("
-                INSERT INTO project_members (project_id, user_id)
-                VALUES (?, ?)
-            ");
+                $stmt = $conn->prepare("INSERT INTO project_members (project_id, user_id) VALUES (?, ?)");
 
                 foreach ($memberIds as $uid) {
                     $uid = (int)$uid;
@@ -109,9 +119,45 @@ class Project
 
             $conn->commit();
             return true;
+
         } catch (Throwable $e) {
             $conn->rollback();
             return false;
         }
     }
+
+    public static function getAssignedMemberIds(int $projectId): array
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("SELECT user_id FROM project_members WHERE project_id = ?");
+        $stmt->bind_param("i", $projectId);
+        $stmt->execute();
+
+        $res = $stmt->get_result();
+
+        $ids = [];
+        while ($row = $res->fetch_assoc()) {
+            $ids[] = (int)$row['user_id'];
+        }
+
+        return $ids;
+    }
+
+    public static function countMembers(int $projectId): int
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            SELECT COUNT(*) AS total
+            FROM project_members
+            WHERE project_id = ?
+        ");
+        $stmt->bind_param("i", $projectId);
+        $stmt->execute();
+
+        $row = $stmt->get_result()->fetch_assoc();
+        return (int)($row['total'] ?? 0);
+    }
+    
 }

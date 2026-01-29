@@ -31,7 +31,7 @@ class ProjectsController
 
         // only show projects created by himself
         $projects = Project::allByCreator((int)$user['id']);
-
+        
         // ✅ choose your page path (example)
         require __DIR__ . '/../../pages/dashboard/index.php';
     }
@@ -124,13 +124,17 @@ class ProjectsController
             redirect('projects');
         }
 
-        // 🔹 get members (role = member only)
-        $members = User::membersOnly();   // 👈 new method
-        $assignedIds = [];                // later use
+        // all members
+        $members = User::membersOnly();
+
+        // important (for checked)
+        $assignedIds = Project::getAssignedMemberIds((int)$project['id']);
+
         $token = csrf_token();
 
         require __DIR__ . '/../../pages/projects/show.php';
     }
+
 
     public static function assignMembers(): void
     {
@@ -157,4 +161,5 @@ class ProjectsController
 
         ResponseService::json(false, 'Assign failed', [], 500);
     }
+
 }

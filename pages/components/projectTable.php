@@ -14,6 +14,7 @@
                 <tr class="bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200">
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">ID</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Project</th>
+                    <th class="py-4 text-xs font-semibold text-gray-700 uppercase tracking-wider">Total Member</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Description</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Status</th>
                     <th class="px-6 py-4 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Start</th>
@@ -46,6 +47,11 @@
                                     <span class="text-sm font-medium text-gray-900"><?= e($p['name']) ?></span>
                                 </div>
                             </div>
+                        </td>
+                        <td>
+                            <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm">
+                                <?= (int)$p['member_count'] ?> members
+                            </span>
                         </td>
 
                         <td class="px-6 py-4">

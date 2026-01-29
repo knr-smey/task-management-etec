@@ -9,7 +9,7 @@ require __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/layouts/app.php';
 ?>
 
-<div class="p-6 max-w-6xl mx-auto">
+<div class="p-4 max-w-7xl mx-auto mx-0">
 
     <div class="bg-white border rounded-2xl p-6 mb-6">
         <div class="flex items-start justify-between gap-4">
@@ -57,7 +57,8 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
                             <input type="checkbox"
                                 class="w-4 h-4"
                                 name="member_ids[]"
-                                value="<?= (int)$m['id'] ?>">
+                                value="<?= (int)$m['id'] ?>"
+                                <?= in_array((int)$m['id'], $assignedIds ?? [], true) ? 'checked' : '' ?>>
                             <div>
                                 <div class="memberName font-medium text-gray-800">
                                     <?= e($m['name']) ?>
@@ -89,17 +90,31 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
 
 <?php require_once __DIR__ . '/../../includes/layouts/app-footer.php'; ?>
 <script>
-$(function() {
+$(function () {
     const ITEMS_PER_PAGE = 6;
     let currentPage = 1;
 
+    const $form = $("#assignForm");
     const $search = $("#memberSearch");
     const $memberList = $("#memberList");
     const $items = $memberList.find(".memberItem");
 
+    const $btnSelectAll = $("#selectAll");
+    const $btnClearAll  = $("#clearAll");
+    const $btnSave = $form.find('button[type="submit"]');
+
     // create pagination container
     const $pagination = $('<div class="flex justify-center gap-2 mt-4"></div>');
     $memberList.after($pagination);
+
+    function getFilteredItems() {
+        const q = ($search.val() || "").toLowerCase().trim();
+        return $items.filter(function () {
+            const name = $(this).find(".memberName").text().toLowerCase();
+            const email = $(this).find(".memberEmail").text().toLowerCase();
+            return name.includes(q) || email.includes(q);
+        });
+    }
 
     function renderPagination(totalPages) {
         $pagination.empty();
@@ -115,7 +130,7 @@ $(function() {
                 </button>
             `);
 
-            $btn.on("click", function() {
+            $btn.on("click", function () {
                 currentPage = i;
                 renderMembers();
             });
@@ -125,14 +140,7 @@ $(function() {
     }
 
     function renderMembers() {
-        const q = ($search.val() || "").toLowerCase().trim();
-
-        // filter items
-        const $filtered = $items.filter(function() {
-            const name = $(this).find(".memberName").text().toLowerCase();
-            const email = $(this).find(".memberEmail").text().toLowerCase();
-            return name.includes(q) || email.includes(q);
-        });
+        const $filtered = getFilteredItems();
 
         const totalPages = Math.ceil($filtered.length / ITEMS_PER_PAGE) || 1;
         if (currentPage > totalPages) currentPage = 1;
@@ -149,13 +157,74 @@ $(function() {
         renderPagination(totalPages);
     }
 
+    function getCheckedIds() {
+        return $memberList.find('input[name="member_ids[]"]:checked')
+            .map(function () { return $(this).val(); })
+            .get();
+    }
+
+    // Select all (current visible page)
+    $btnSelectAll.on("click", function () {
+        $items.filter(":visible").find('input[type="checkbox"]').prop("checked", true);
+    });
+
+    // Clear all (all members)
+    $btnClearAll.on("click", function () {
+        $items.find('input[type="checkbox"]').prop("checked", false);
+    });
+
     // search event
-    $search.on("input", function() {
+    $search.on("input", function () {
         currentPage = 1;
         renderMembers();
+    });
+
+    // ✅ AJAX SAVE
+    $form.on("submit", function (e) {
+        e.preventDefault();
+
+        const checkedIds = getCheckedIds();
+
+        // confirm if remove all
+        if (checkedIds.length === 0) {
+            const ok = confirm("Remove all members from this project?");
+            if (!ok) return;
+        }
+
+        // disable buttons while saving
+        $btnSave.prop("disabled", true).text("Saving...");
+        $btnSelectAll.prop("disabled", true);
+        $btnClearAll.prop("disabled", true);
+
+        $.ajax({
+            url: $form.attr("action"),
+            method: "POST",
+            data: $form.serialize(), // ✅ sends csrf, project_id, member_ids[]
+            dataType: "json",
+            success: function (res) {
+                const ok = (res.status === true) || (res.success === true);
+
+                if (ok) {
+                    alert(res.message || "Saved ✅");
+                } else {
+                    alert(res.message || "Save failed ❌");
+                }
+            },
+            error: function (xhr) {
+                console.log(xhr.responseText);
+                alert("Server error ❌");
+            },
+            complete: function () {
+                // re-enable
+                $btnSave.prop("disabled", false).text("Save");
+                $btnSelectAll.prop("disabled", false);
+                $btnClearAll.prop("disabled", false);
+            }
+        });
     });
 
     // initial render
     renderMembers();
 });
 </script>
+
