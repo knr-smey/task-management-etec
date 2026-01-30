@@ -1,9 +1,6 @@
 <?php
 return [
-    // members
-    // 'member'        => 'api/superAdmin.php',
-    // 'create-member' => 'api/superAdmin.php',
-    // 'delete-member' => 'api/superAdmin.php',
+
     'member' => 'api/member.php',
     'create-member' => 'api/member.php',
     'delete-member' => 'api/member.php',
