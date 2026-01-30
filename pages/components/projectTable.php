@@ -7,7 +7,7 @@
  */
 ?>
 
-<div class="bg-white rounded-xl overflow-hidden border border-gray-100">
+<div class="overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full min-w-max">
             <thead>
@@ -38,11 +38,8 @@
                             <span class="text-sm font-medium text-gray-900"><?= (int)$p['id'] ?></span>
                         </td>
 
-                        <td class="px-6 py-4 whitespace-nowrap">
+                        <td class="px-3 py-4 whitespace-nowrap">
                             <div class="flex items-center">
-                                <div class="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                                    <?= strtoupper(substr(e($p['name']), 0, 1)) ?>
-                                </div>
                                 <div class="ml-3">
                                     <span class="text-sm font-medium text-gray-900"><?= e($p['name']) ?></span>
                                 </div>
@@ -56,7 +53,7 @@
 
                         <td class="px-6 py-4">
                             <span class="text-sm text-gray-600">
-                                <?= !empty($p['description']) ? e($p['description']) : '-' ?>
+                                <?= !empty($p['description']) ? e($p['description']) : 'N/A' ?>
                             </span>
                         </td>
 
@@ -121,27 +118,21 @@
         </table>
     </div>
 
+    <div class="flex justify-end mt-4 pb-4">
+        <div id="projectPagenation" class="flex gap-2 flex-wrap"></div>
+    </div>
+
     <div class="bg-gray-50 px-6 py-3 border-t border-gray-200 text-center lg:hidden">
         <p class="text-xs text-gray-500">← Scroll horizontally to see more →</p>
     </div>
 </div>
-
-<style>
-    .overflow-x-auto::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .overflow-x-auto::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .overflow-x-auto::-webkit-scrollbar-thumb {
-        background: #cbd5e0;
-        border-radius: 10px;
-    }
-
-    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-        background: #a0aec0;
-    }
-</style>
+<script>
+    $(function() {
+        Paginator({
+            itemsSelector: "table tbody tr",
+            // searchInputSelector: "", // remove if you don't have search
+            paginationSelector: "#projectPagenation",
+            itemsPerPage: 5
+        });
+    });
+</script>

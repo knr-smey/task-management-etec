@@ -32,8 +32,7 @@
                         data-email="<?= e($m['email']) ?>"
                         data-course="<?= e($m['course'] ?? '') ?>"
                         data-role="<?= e($m['roles']) ?>"
-                        data-active="<?= (int)$m['is_active'] ?>"
-                    >
+                        data-active="<?= (int)$m['is_active'] ?>">
 
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="text-sm font-medium text-gray-900"><?= (int)$m['id'] ?></span>
@@ -105,33 +104,26 @@
                         </td>
                     </tr>
                 <?php endforeach; ?>
+
             </tbody>
+
         </table>
     </div>
-
+    <div class="flex justify-end mt-4 pb-4">
+        <div id="membersPagination" class="flex gap-2 flex-wrap"></div>
+    </div>
     <!-- Optional: Scroll indicator for mobile -->
     <div class="bg-gray-50 px-6 py-3 border-t border-gray-200 text-center lg:hidden">
         <p class="text-xs text-gray-500">← Scroll horizontally to see more →</p>
     </div>
 </div>
-
-<style>
-    /* Custom scrollbar for webkit browsers */
-    .overflow-x-auto::-webkit-scrollbar {
-        height: 8px;
-    }
-
-    .overflow-x-auto::-webkit-scrollbar-track {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-
-    .overflow-x-auto::-webkit-scrollbar-thumb {
-        background: #cbd5e0;
-        border-radius: 10px;
-    }
-
-    .overflow-x-auto::-webkit-scrollbar-thumb:hover {
-        background: #a0aec0;
-    }
-</style>
+<script>
+    $(function() {
+        Paginator({
+            itemsSelector: "table tbody tr",
+            searchInputSelector: "#membersSearch", // remove if you don't have search
+            paginationSelector: "#membersPagination",
+            itemsPerPage: 5
+        });
+    });
+</script>

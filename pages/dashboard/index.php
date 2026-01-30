@@ -20,7 +20,7 @@ $projects = [];
 
 if ($canSeeProjects) {
     require_once __DIR__ . '/../../app/Models/Project.php';
-    // ✅ show only his own projects (recommended)
+    // show only his own projects (recommended)
     $projects = Project::allByCreator((int)$user['id']);
 }
 
@@ -30,15 +30,15 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
 
 <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
 
-<!-- ✅ Member can still see dashboard content -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+<!-- Member can still see dashboard content -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
     <div class="bg-slate-50 p-4 rounded-xl border">Overview card 1</div>
     <div class="bg-slate-50 p-4 rounded-xl border">Overview card 2</div>
     <div class="bg-slate-50 p-4 rounded-xl border">Overview card 3</div>
 </div>
 
 <?php if ($canSeeProjects): ?>
-    <!-- ✅ Only admin/super/instructor see projects section -->
+    <!-- Only admin/super/instructor see projects section -->
     <div class="flex items-center justify-between mb-4">
         <h2 class="text-2xl font-bold text-gray-800">Projects</h2>
 
@@ -52,7 +52,7 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
     <?php require __DIR__ . '/../components/project-modal.php'; ?>
 
 <?php else: ?>
-    <!-- ✅ Member: hide project UI -->
+    <!-- Member: hide project UI -->
     <div class="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-xl">
         You don’t have permission to view projects.
     </div>

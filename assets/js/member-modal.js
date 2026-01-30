@@ -21,7 +21,7 @@
     }, 10);
   }
 
-  // ✅ keep same function name because your HTML uses onclick="closeModal()"
+  // keep same function name because your HTML uses onclick="closeModal()"
   window.closeModal = function () {
     modalContent.classList.remove("scale-100", "opacity-100");
     modalContent.classList.add("scale-95", "opacity-0");
@@ -42,7 +42,7 @@
     }, 250);
   };
 
-  // ✅ course required ONLY for member (same)
+  // course required ONLY for member (same)
   function applyRoleRule() {
     const role = parseInt($("#role").val() || "0", 10);
 
@@ -59,7 +59,7 @@
 
   $("#role").on("change", applyRoleRule);
 
-  // ✅ Create (same name: openModalCreate())
+  // Create (same name: openModalCreate())
   window.openModalCreate = function () {
     $("#title").text("Add Member");
     $("#btnSubmit").text("Create Member").removeClass("bg-green-600").addClass("bg-blue-600");
@@ -78,7 +78,7 @@
     showModal();
   };
 
-  // ✅ Edit (same)
+  // Edit (same)
   $(document).on("click", ".editBtn", function () {
     const tr = $(this).closest("tr");
 
@@ -118,7 +118,7 @@
     showModal();
   });
 
-  // ✅ submit (same)
+  // submit (same)
   $form.on("submit", function (e) {
     e.preventDefault();
 
