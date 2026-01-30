@@ -1,6 +1,16 @@
 <?php
 
 declare(strict_types=1);
+
+function accessing($message)
+{
+  $user = $_SESSION['user'] ?? null;
+  foreach ($user['roles'] as $role) {
+    if ($role != "member") {
+      echo $message;
+    }
+  }
+}
 ?>
 <!doctype html>
 <html lang="en">
@@ -52,20 +62,6 @@ declare(strict_types=1);
           </svg>
         </button>
       </div>
-      <?php
-      $user = $_SESSION['user'] ?? null;
-      foreach ($user['roles'] as $role) {
-        if ($role != "member") {
-          echo ' <a href="' . e(BASE_URL) . 'create-project" class="p-2 bg-green-600 rounded-full hover:bg-green-700 cursor-pointer" title="create project">
-         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-    </svg>
-      </a>';
-        }
-      }
-
-      ?>
-
       <div class="relative">
         <button class="p-2 hover:bg-blue-800 rounded">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,7 +90,12 @@ declare(strict_types=1);
           </svg>
           <span>Overview</span>
         </a>
-
+        <?php accessing('<a href="'.e(BASE_URL).'project" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded cursor-pointer">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Projects</span>') ?>
+        </a>
         <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded cursor-pointer">
           <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -113,7 +114,8 @@ declare(strict_types=1);
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </a>
-        <a href="#" class="sidebar-item active flex items-center justify-between px-3 py-2 rounded cursor-pointer">
+        <?php
+          accessing('<a href="' . e(BASE_URL) . 'board" class="sidebar-item active flex items-center justify-between px-3 py-2 rounded cursor-pointer">
           <div class="flex items-center gap-3">
             <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
               <path d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
@@ -123,7 +125,10 @@ declare(strict_types=1);
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
-        </a>
+        </a>');
+
+        ?>
+
         <a href="#" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
@@ -142,18 +147,12 @@ declare(strict_types=1);
           </svg>
         </a>
         <?php
-        $user = $_SESSION['user'] ?? null;
-        foreach ($user['roles'] as $role) {
-          if ($role != "member") {
-            echo '<a href="' . e(BASE_URL) . 'member" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded cursor-pointer">
+          accessing('<a href="' . e(BASE_URL) . 'member" class="sidebar-item flex items-center gap-3 px-3 py-2 rounded cursor-pointer">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
           <span>Members</span>
-        </a>';
-          }
-        }
-
+        </a>');
         ?>
 
       </div>

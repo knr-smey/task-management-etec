@@ -2,5 +2,6 @@
 
 return [
     'member' => 'api/superAdmin.php',
-    'create-project'=>'pages/instructor/create.php'
+    'project'=>'pages/instructor/project/create.php',
+    'board'=>'pages/instructor/boards/index.php'
 ];
