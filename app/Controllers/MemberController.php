@@ -7,18 +7,38 @@ require_once __DIR__ . '/../../includes/helpers.php';
 require_once __DIR__ . '/../Services/ResponseService.php';
 require_once __DIR__ . '/../Models/User.php';
 
-class SuperAdminController
+class MemberController
 {
-    public static function getMember()
+    private static function authorize(): array
     {
         $currentUser = $_SESSION['user'] ?? [];
+
+        // ✅ Use your existing role helper (same as User::all rules)
+        if (
+            !userHasRole($currentUser, 'super_admin') &&
+            !userHasRole($currentUser, 'admin') &&
+            !userHasRole($currentUser, 'instructor')
+        ) {
+            ResponseService::json(false, 'Forbidden', [], 403);
+        }
+
+        return $currentUser;
+    }
+
+    // ✅ PAGE: show member page (same as old)
+    public static function index(): void
+    {
+        $currentUser = self::authorize();
         $members = User::all($currentUser);
 
         require __DIR__ . '/../../pages/superAdmin/member.php';
     }
 
-    public static function create()
+    // ✅ API: create/update (same as old create())
+    public static function store(): void
     {
+        self::authorize();
+
         $id = $_POST['hide_id'] ?? '';
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -35,11 +55,10 @@ class SuperAdminController
 
         $role = (int)($_POST['role'] ?? 0);
 
-        // ✅ this is course (Frontend/Backend) but only member uses it
+        // ✅ course (type) only for member
         $course = $_POST['type'] ?? null;
 
-        // ✅ is_active: 1/0 (account open/close)
-        // Your form currently sends "status" dropdown (Approve/Reject/Pending). Change it to Active/Inactive.
+        // ✅ is_active: 1/0
         $isActive = isset($_POST['status']) ? (int)$_POST['status'] : User::ACTIVE;
 
         if ($name === '') ResponseService::json(false, 'Name is required', [], 422);
@@ -63,10 +82,10 @@ class SuperAdminController
         $request = [
             'name'      => $name,
             'email'     => $email,
-            'password'  => $password,  // ✅ raw
+            'password'  => $password,  // raw (model hashes)
             'role'      => $role,
-            'course'    => $course,    // ✅ null for admin/super
-            'is_active' => $isActive   // ✅ 1/0
+            'course'    => $course,
+            'is_active' => $isActive
         ];
 
         if ($id === '') {
@@ -74,7 +93,6 @@ class SuperAdminController
             if ($newId) ResponseService::json(true, 'Create user successful', ['id' => $newId]);
             ResponseService::json(false, 'Create failed', [], 500);
         } else {
-            // if editing and password empty, remove it so model won't update password
             if ($password === '') unset($request['password']);
 
             $ok = User::update((int)$id, $request);
@@ -83,8 +101,11 @@ class SuperAdminController
         }
     }
 
-    public static function deleteMember()
+    // ✅ API: delete (same as old deleteMember())
+    public static function destroy(): void
     {
+        self::authorize();
+
         if (!verify_csrf($_POST['csrf'] ?? '')) {
             ResponseService::json(false, 'Invalid CSRF token', [], 403);
         }

@@ -1,4 +1,5 @@
 <?php
+
 class User
 {
     public const ROLE_SUPERADMIN = 1;
@@ -6,152 +7,185 @@ class User
     public const ROLE_INSTRUCTOR = 3;
     public const ROLE_MEMBER     = 4;
 
-    public const STATUS_APPROVE = 1;
-    public const STATUS_REJECT  = 2;
-    public const STATUS_PENDING = 3;
+    // is_active meaning
+    public const ACTIVE   = 1;
+    public const INACTIVE = 0;
 
     public const TYPE_FRONTEND = 'Frontend';
-    public const TYPE_BACKEND = 'Backend';
+    public const TYPE_BACKEND  = 'Backend';
 
-    public static function statusLabel(int $status): string
+    public static function activeLabel(int $isActive): string
     {
-        return [
-            self::STATUS_APPROVE => 'Approve',
-            self::STATUS_REJECT  => 'Reject',
-            self::STATUS_PENDING => 'Pending',
-        ][$status] ?? 'Unknown';
+        return $isActive === self::ACTIVE ? 'Active' : 'Inactive';
     }
+
     public static function all(array $currentUser = []): array
     {
         global $conn;
 
-        $sql = "SELECT u.id, u.name, u.email, u.course, u.is_active, u.created_at,
-                   GROUP_CONCAT(r.name) AS roles
-            FROM users u
-            LEFT JOIN user_roles ur ON ur.user_id = u.id
-            LEFT JOIN roles r ON r.id = ur.role_id";
+        $sql = "
+        SELECT 
+            u.id,
+            u.name,
+            u.email,
+            u.course,
+            u.is_active,
+            u.created_at,
+            GROUP_CONCAT(DISTINCT r.name) AS roles
+        FROM users u
+        LEFT JOIN user_roles ur ON ur.user_id = u.id
+        LEFT JOIN roles r ON r.id = ur.role_id
+        LEFT JOIN team_members tm ON tm.user_id = u.id
+    ";
 
+        $where  = [];
         $params = [];
-        $types = '';
-        $where = [];
+        $types  = '';
 
+        // 🔐 ROLE RULES
         if (userHasRole($currentUser, 'super_admin')) {
-            
+            // see all
         } elseif (userHasRole($currentUser, 'admin')) {
-            $where[] = "r.name IN ('instructor', 'member')";
+            $where[] = "r.name IN ('instructor','member')";
         } elseif (userHasRole($currentUser, 'instructor')) {
+            // instructor → members in his teams
             $where[] = "r.name = 'member'";
-            $instructorId = $currentUser['id'];
-            $where[] = "u.instructor_id = ?";
-            $params[] = $instructorId;
+            $where[] = "tm.team_id IN (
+            SELECT team_id FROM team_members WHERE user_id = ?
+        )";
+            $params[] = (int)$currentUser['id'];
+            $types .= 'i';
+        } elseif (userHasRole($currentUser, 'member')) {
+            // member → same team
+            $where[] = "tm.team_id IN (
+            SELECT team_id FROM team_members WHERE user_id = ?
+        )";
+            $params[] = (int)$currentUser['id'];
             $types .= 'i';
         } else {
-            // other roles have no access
             return [];
         }
 
-        if (!empty($where)) {
-            $sql .= " WHERE " . implode(' AND ', $where);
+        if ($where) {
+            $sql .= ' WHERE ' . implode(' AND ', $where);
         }
 
-        $sql .= " GROUP BY u.id ORDER BY u.id ASC";
-        if (!empty($params)) {
+        $sql .= ' GROUP BY u.id ORDER BY u.id ASC';
+
+        if ($params) {
             $stmt = $conn->prepare($sql);
-            if (!$stmt) {
-                error_log("Prepare failed: " . $conn->error);
-                return [];
-            }
             $stmt->bind_param($types, ...$params);
             $stmt->execute();
-            $res = $stmt->get_result();
-            return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
         }
 
-    
-        $res = $conn->query($sql);
-        return $res ? $res->fetch_all(MYSQLI_ASSOC) : [];
+        return $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
     }
-
-
-
-    // public static function find(int $id): ?array
-    // {
-    //     global $conn;
-    //     $stmt = $conn->prepare("
-    //         SELECT u.id, u.name, u.email, u.course, u.is_active,
-    //                GROUP_CONCAT(r.name) AS roles
-    //         FROM users u
-    //         LEFT JOIN user_roles ur ON ur.user_id = u.id
-    //         LEFT JOIN roles r ON r.id = ur.role_id
-    //         WHERE u.id = ?
-    //         GROUP BY u.id
-    //         LIMIT 1
-    //     ");
-    //     $stmt->bind_param('i', $id);
-    //     $stmt->execute();
-    //     $res = $stmt->get_result();
-    //     return $res->num_rows ? $res->fetch_assoc() : null;
-    // }
 
     public static function create(array $data): ?int
     {
         global $conn;
 
-        $name = $data['name'] ?? '';
-        $email = $data['email'] ?? '';
-        $password = password_hash($data['password'] ?? '', PASSWORD_BCRYPT);
-        $status = $data['status'] ?? 1;
-        $type = $data['type'] ?? 1;
+        $name  = trim((string)($data['name'] ?? ''));
+        $email = trim((string)($data['email'] ?? ''));
+        $rawPassword = (string)($data['password'] ?? '');
+        $roleId = (int)($data['role'] ?? 0);
 
-        $stmt = $conn->prepare("
-            INSERT INTO users (name, email, password_hash,course, is_active)
-            VALUES (?, ?, ?, ?, ?)
-        ");
-        $stmt->bind_param('ssssi', $name, $email, $password, $type, $status);
+        // ✅ is_active: 1/0
+        $isActive = isset($data['is_active']) ? (int)$data['is_active'] : self::ACTIVE;
 
-        if ($stmt->execute()) {
-            $userId = $conn->insert_id;
-            $stmtRole = $conn->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)");
-            $stmtRole->bind_param('ii', $userId, $data['role']);
-            $stmtRole->execute();
-            return true;
+        // ✅ course rules:
+        // - member: must have course
+        // - admin/super/s instructor: course = NULL
+        $course = $data['course'] ?? null;
+
+        if ($roleId === self::ROLE_MEMBER) {
+            $course = trim((string)$course);
+            if ($course === '') return null; // member must have course
+        } else {
+            $course = null; // other roles must be NULL
         }
 
-        return null;
+        if ($name === '' || $email === '' || $rawPassword === '' || $roleId <= 0) {
+            return null;
+        }
+
+        $passwordHash = password_hash($rawPassword, PASSWORD_BCRYPT);
+
+        $stmt = $conn->prepare("
+            INSERT INTO users (name, email, password_hash, course, is_active)
+            VALUES (?, ?, ?, ?, ?)
+        ");
+        if (!$stmt) return null;
+
+        // course can be NULL (mysqli allows null with 's')
+        $stmt->bind_param('ssssi', $name, $email, $passwordHash, $course, $isActive);
+
+        if (!$stmt->execute()) {
+            error_log("Create execute failed: " . $stmt->error);
+            return null;
+        }
+
+        $userId = (int)$conn->insert_id;
+
+        $stmtRole = $conn->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)");
+        if ($stmtRole) {
+            $stmtRole->bind_param('ii', $userId, $roleId);
+            $stmtRole->execute();
+        }
+
+        return $userId;
     }
+
     public static function update(int $id, array $data): bool
     {
         global $conn;
+
+        $roleId = (int)($data['role'] ?? 0);
+        $isActive = isset($data['is_active']) ? (int)$data['is_active'] : null;
 
         $fields = [];
         $params = [];
         $types = '';
 
-        // Map controller fields to database columns
         if (!empty($data['name'])) {
             $fields[] = 'name = ?';
-            $params[] = $data['name'];
+            $params[] = trim((string)$data['name']);
             $types .= 's';
         }
+
         if (!empty($data['email'])) {
             $fields[] = 'email = ?';
-            $params[] = $data['email'];
+            $params[] = trim((string)$data['email']);
             $types .= 's';
         }
-        if (!empty($data['type'])) {
-            $fields[] = 'course = ?'; // Assuming 'type' maps to 'course'
-            $params[] = $data['type'];
-            $types .= 's';
+
+        // ✅ course rules on update too
+        if ($roleId > 0) {
+            if ($roleId === self::ROLE_MEMBER) {
+                $course = trim((string)($data['course'] ?? ''));
+                // member can’t be null
+                $fields[] = 'course = ?';
+                $params[] = $course;
+                $types .= 's';
+            } else {
+                $fields[] = 'course = ?';
+                $params[] = null; // admin/super -> null
+                $types .= 's';
+            }
         }
-        if (isset($data['status'])) {
-            $fields[] = 'is_active = ?'; // Assuming 'status' maps to 'is_active'
-            $params[] = (int)$data['status'];
+
+        // ✅ is_active: 1/0
+        if ($isActive !== null) {
+            $fields[] = 'is_active = ?';
+            $params[] = $isActive;
             $types .= 'i';
         }
+
+        // ✅ if password typed, hash it
         if (!empty($data['password'])) {
-            // Only hash if password is raw (controller currently sends hashed, so skip)
             $fields[] = 'password_hash = ?';
-            $params[] = $data['password']; // already hashed from controller
+            $params[] = password_hash((string)$data['password'], PASSWORD_BCRYPT);
             $types .= 's';
         }
 
@@ -162,36 +196,57 @@ class User
         $types .= 'i';
 
         $stmt = $conn->prepare($sql);
-        if (!$stmt) {
-            error_log("Update prepare failed: " . $conn->error);
-            return false;
-        }
+        if (!$stmt) return false;
 
         $stmt->bind_param($types, ...$params);
-        $res = $stmt->execute();
+        $ok = $stmt->execute();
 
-        // Handle role update separately
-        if (isset($data['role'])) {
+        // ✅ update role link (if role provided)
+        if ($roleId > 0) {
             $stmtRole = $conn->prepare("DELETE FROM user_roles WHERE user_id = ?");
-            $stmtRole->bind_param('i', $id);
-            $stmtRole->execute();
-
+            if ($stmtRole) {
+                $stmtRole->bind_param('i', $id);
+                $stmtRole->execute();
+            }
             $stmtRoleInsert = $conn->prepare("INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)");
-            $stmtRoleInsert->bind_param('ii', $id, $data['role']);
-            $stmtRoleInsert->execute();
+            if ($stmtRoleInsert) {
+                $stmtRoleInsert->bind_param('ii', $id, $roleId);
+                $stmtRoleInsert->execute();
+            }
         }
 
-        return $res;
+        return $ok;
     }
 
     public static function delete(int $id): bool
     {
         global $conn;
+
         $stmt = $conn->prepare("DELETE FROM user_roles WHERE user_id = ?");
         $stmt->bind_param('i', $id);
         $stmt->execute();
+
         $stmt = $conn->prepare("DELETE FROM users WHERE id = ?");
         $stmt->bind_param('i', $id);
         return $stmt->execute();
+    }
+    
+    public static function membersOnly(): array
+    {
+        global $conn;
+
+        $sql = "
+            SELECT 
+                u.id,
+                u.name,
+                u.email
+            FROM users u
+            INNER JOIN user_roles ur ON ur.user_id = u.id
+            INNER JOIN roles r ON r.id = ur.role_id
+            WHERE r.name = 'member'
+            ORDER BY u.name ASC
+        ";
+
+        return $conn->query($sql)->fetch_all(MYSQLI_ASSOC);
     }
 }

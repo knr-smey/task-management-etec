@@ -1,5 +1,6 @@
 <?php
 
+// <<<<<<< HEAD
 declare(strict_types=1);
 
 function accessing($message)
@@ -19,23 +20,36 @@ function accessing($message)
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= e(APP_NAME) ?></title>
+
+  <!-- CSS -->
   <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css">
   <link rel="icon" href="<?= e(BASE_URL) ?>public/Image/KRUSolutionLogo.png">
+
+  <!-- Tailwind -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+
+  <!-- jQuery -->
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous">
+  </script>
+
+  <!-- Sidebar style -->
+  <style>
+    .sidebar-item {
+      transition: background-color 0.2s;
+    }
+
+    .sidebar-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-item.active {
+      background-color: #0E5A8A;
+    }
+  </style>
 </head>
-<style>
-  .sidebar-item {
-    transition: background-color 0.2s;
-  }
-
-  .sidebar-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-  }
-
-  .sidebar-item.active {
-    background-color: #0E5A8A;
-  }
 </style>
 
 <body class="bg-white font-sans">
@@ -47,11 +61,6 @@ function accessing($message)
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
         </svg>
       </div>
-      <!-- <button class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center hover:bg-green-600">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-            </button> -->
     </div>
     <div class="flex items-center gap-4">
       <div class="relative">
@@ -157,14 +166,7 @@ function accessing($message)
 
       </div>
     </aside>
-    <!-- <header class="topbar">
-    <div class="container">
-      <div class="brand"><?= e(APP_NAME) ?></div>
-      <nav class="nav">
-        <a href="<?= e(BASE_URL) ?>dashboard">Dashboard</a>
-        <a href="<?= e(BASE_URL) ?>tasks">Tasks</a>
-        <a href="<?= e(BASE_URL) ?>logout">Logout</a>
-      </nav>
-    </div>
-  </header> -->
     <main class="flex-1 overflow-y-auto bg-white ms-60">
+
+<body class="bg-white font-sans">
+
