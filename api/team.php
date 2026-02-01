@@ -1,0 +1,28 @@
+<?php
+
+declare(strict_types=1);
+
+// boot files
+require_once __DIR__ . '/../includes/helpers.php';
+require_once __DIR__ . '/../config/app.php';
+require_once __DIR__ . '/../config/db.php';
+
+// controller
+require_once __DIR__ . '/../app/Controllers/TeamController.php';
+
+// detect route from router (?url=...)
+$route = trim((string)($_GET['url'] ?? ''), '/');
+
+if ($route === 'team') {
+    TeamController::index();
+    exit;
+}
+
+if ($route === 'create-team') {
+    TeamController::store();
+    exit;
+}
+
+
+// fallback
+ResponseService::json(false, 'Not found', [], 404);

@@ -42,6 +42,16 @@ require_once __DIR__ . '/helpers.php';
             <span class="font-medium">Task</span>
         </a>
 
+        <!-- Task -->
+        <a href="<?= e(BASE_URL) ?>team"
+            class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200
+           <?= isActive('/team')
+                ? 'bg-blue-900 text-white shadow-inner font-semibold border border-blue-700'
+                : 'hover:bg-blue-900 hover:translate-x-1'
+            ?>">
+            <span class="font-medium">Team</span>
+        </a>
+
         <!-- Boards -->
         <a href="<?= e(BASE_URL) ?>boards"
             class="sidebar-item flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200

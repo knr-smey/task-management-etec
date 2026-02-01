@@ -35,8 +35,8 @@ class User
         FROM users u
         LEFT JOIN user_roles ur ON ur.user_id = u.id
         LEFT JOIN roles r ON r.id = ur.role_id
-        LEFT JOIN team_members tm ON tm.user_id = u.id
-    ";
+        LEFT JOIN team_members tm ON tm.member_id = u.id
+        ";
 
         $where  = [];
         $params = [];
@@ -48,18 +48,21 @@ class User
         } elseif (userHasRole($currentUser, 'admin')) {
             $where[] = "r.name IN ('instructor','member')";
         } elseif (userHasRole($currentUser, 'instructor')) {
-            // instructor → members in his teams
+
             $where[] = "r.name = 'member'";
             $where[] = "tm.team_id IN (
-            SELECT team_id FROM team_members WHERE user_id = ?
-        )";
+                SELECT team_id FROM team_members WHERE member_id = ?
+            )";
+
             $params[] = (int)$currentUser['id'];
             $types .= 'i';
+
         } elseif (userHasRole($currentUser, 'member')) {
-            // member → same team
+
             $where[] = "tm.team_id IN (
-            SELECT team_id FROM team_members WHERE user_id = ?
-        )";
+                SELECT team_id FROM team_members WHERE member_id = ?
+            )";
+
             $params[] = (int)$currentUser['id'];
             $types .= 'i';
         } else {

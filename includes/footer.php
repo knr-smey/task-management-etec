@@ -1,4 +1,13 @@
-<?php require_once __DIR__ . '/../pages/components/project-modal.php'; ?>
+<?php
+declare(strict_types=1);
+
+// REQUIRED because footer uses User::ROLE_MEMBER
+require_once __DIR__ . '/../app/Models/User.php';
+
+// existing code...
+require_once __DIR__ . '/../pages/components/project-modal.php';
+?>
+
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
