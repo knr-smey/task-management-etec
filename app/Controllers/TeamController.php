@@ -42,38 +42,26 @@ class TeamController
      */
     public static function index(): void
     {
-        $user  = self::authorizeAdmin();
+        $user  = self::authorizeAny();
         $token = csrf_token();
 
-        $rows = TeamSession::allWithSessionsByCreator((int)$user['id']);
+        $isAdmin = (
+            userHasRole($user, 'super_admin') ||
+            userHasRole($user, 'admin') ||
+            userHasRole($user, 'instructor')
+        );
 
-        $teams = [];
-        foreach ($rows as $row) {
-            $teamId = (int)$row['team_id'];
+        // ✅ admin sees his created teams, member sees joined teams
+        $teams = $isAdmin
+            ? Team::allByCreator((int)$user['id'])
+            : Team::allByMember((int)$user['id']);
 
-            if (!isset($teams[$teamId])) {
-                $teams[$teamId] = [
-                    'id'         => $teamId,
-                    'name'       => $row['team_name'],
-                    'team_type'  => $row['team_type'],
-                    'created_at' => $row['created_at'],
-                    'sessions'   => [],
-                ];
-            }
-
-            if (!empty($row['session_id'])) {
-                $teams[$teamId]['sessions'][] = [
-                    'day'   => $row['day_of_week'],
-                    'start' => $row['start_time'],
-                    'end'   => $row['end_time'],
-                ];
-            }
-        }
-
-        $teams = array_values($teams);
+        // ✅ permission flag for UI
+        $canCreateTeam = $isAdmin;
 
         require __DIR__ . '/../../pages/team/index.php';
     }
+
 
     /**
      * ACTION: Create team (ADMIN ONLY)
