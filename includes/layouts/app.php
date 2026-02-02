@@ -11,4 +11,4 @@
     <?php require __DIR__ . '/../sidebar.php'; ?>
 
     <!-- PAGE CONTENT START -->
-    <main class="ms-60 p-8 py-4 min-h-[91vh]">
+    <main class="pt-23 ml-64 min-h-screen bg-slate-50 p-8">

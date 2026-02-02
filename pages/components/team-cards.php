@@ -169,11 +169,6 @@
             const BASE_URL = window.BASE_URL || "<?= e(BASE_URL) ?>";
             const API_TEAM = BASE_URL + "api/team.php?url=";
 
-            Swal.fire({
-                title: "Generating invite link...",
-                allowOutsideClick: false,
-                didOpen: () => Swal.showLoading()
-            });
 
             $.ajax({
                 url: API_TEAM + "create-invite",

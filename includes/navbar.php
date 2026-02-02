@@ -2,7 +2,7 @@
 $user = $_SESSION['user'] ?? null;
 ?>
 
-<nav class="bg-blue-900 text-white px-6 py-3 flex items-center justify-between sticky top-0 z-50 shadow-md">
+<nav class="bg-blue-900 text-white px-6 h-16 flex items-center justify-between fixed top-0 left-0 right-0 z-50 shadow-md">
     <!-- Left -->
     <div class="flex items-center gap-3">
         <span class="text-lg font-semibold tracking-wide">

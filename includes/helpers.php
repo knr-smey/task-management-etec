@@ -195,3 +195,30 @@ if (!function_exists('full_url')) {
         return $scheme . '://' . $host . $path;
     }
 }
+
+/** Normalize roles to array */
+if (!function_exists('getUserRoles')) {
+    function getUserRoles(array $user): array
+    {
+        $roles = $user['roles'] ?? [];
+
+        if (is_string($roles)) {
+            $roles = array_filter(array_map('trim', explode(',', $roles)));
+        }
+
+        if (!is_array($roles)) return [];
+
+        // remove empty + duplicates
+        $roles = array_values(array_unique(array_filter($roles)));
+        return $roles;
+    }
+}
+
+/** True if user has ONLY member role */
+if (!function_exists('isMemberOnly')) {
+    function isMemberOnly(array $user): bool
+    {
+        $roles = getUserRoles($user);
+        return count($roles) === 1 && $roles[0] === 'member';
+    }
+}

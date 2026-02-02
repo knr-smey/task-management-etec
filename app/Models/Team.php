@@ -176,5 +176,43 @@ class Team
         return $ids;
     }
 
-    
+    public static function allByMember(int $userId): array
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            SELECT 
+                t.*,
+                COUNT(tm2.member_id) AS member_count
+            FROM teams t
+            INNER JOIN team_members tm 
+                ON tm.team_id = t.id AND tm.member_id = ?
+            LEFT JOIN team_members tm2
+                ON tm2.team_id = t.id
+            GROUP BY t.id
+            ORDER BY tm.joined_at DESC
+        ");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
+    }
+
+    /** Check if a member belongs to a team */
+    public static function isMemberInTeam(int $teamId, int $userId): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            SELECT 1
+            FROM team_members
+            WHERE team_id = ? AND member_id = ?
+            LIMIT 1
+        ");
+        $stmt->bind_param("ii", $teamId, $userId);
+        $stmt->execute();
+
+        return (bool) $stmt->get_result()->fetch_row();
+    }
+
 }

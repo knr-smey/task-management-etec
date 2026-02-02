@@ -4,7 +4,7 @@ require_once __DIR__ . '/helpers.php';
 // dump(currentPath());
 ?>
 
-<aside class="w-64 bg-blue-950 text-white h-[91vh] fixed top-[9vh] shadow-xl">
+<aside class="w-64 bg-blue-950 text-white fixed top-16 left-0 h-[calc(100vh-4rem)] shadow-xl overflow-y-auto">
     <div class="p-4 space-y-1">
 
         <!-- Section title -->
