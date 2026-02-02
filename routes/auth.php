@@ -9,4 +9,7 @@
     'api/auth/login' => 'api/auth.php',
     'api/auth/register' => 'api/auth.php',
     'api/auth/logout' => 'api/auth.php',
+
+    'team/join'         => 'api/team.php',
+    'team/join-confirm' => 'api/team.php',
 ];

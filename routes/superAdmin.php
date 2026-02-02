@@ -16,4 +16,6 @@ return [
 
     'team'  => 'api/team.php',
     'create-team'  => 'api/team.php',
+    'team/detail'  => 'api/team.php',
+    'team/join'    => 'api/team.php',
 ];

@@ -10,13 +10,20 @@ class AuthController
 {
     public static function login(): void
     {
+        // ✅ make sure session exists
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             ResponseService::json(false, 'Invalid request method', [], 405);
+            return;
         }
 
         // CSRF
         if (!verify_csrf($_POST['csrf'] ?? '')) {
             ResponseService::json(false, 'Invalid CSRF token', [], 403);
+            return;
         }
 
         $email    = trim($_POST['email'] ?? '');
@@ -24,36 +31,39 @@ class AuthController
 
         if ($email === '' || $password === '') {
             ResponseService::json(false, 'Email and password are required', [], 422);
+            return;
         }
 
         global $conn;
 
         // Fetch user
         $stmt = $conn->prepare("
-            SELECT id, name, email, password_hash, is_active
-            FROM users
-            WHERE email = ?
-            LIMIT 1
-        ");
+        SELECT id, name, email, password_hash, is_active
+        FROM users
+        WHERE email = ?
+        LIMIT 1
+    ");
         $stmt->bind_param('s', $email);
         $stmt->execute();
         $user = $stmt->get_result()->fetch_assoc();
 
         if (!$user || !password_verify($password, $user['password_hash'])) {
             ResponseService::json(false, 'Invalid email or password', [], 401);
+            return;
         }
 
         if ((int)$user['is_active'] !== 1) {
             ResponseService::json(false, 'Account is disabled', [], 403);
+            return;
         }
 
         // Load roles
         $stmt = $conn->prepare("
-            SELECT r.name
-            FROM roles r
-            JOIN user_roles ur ON ur.role_id = r.id
-            WHERE ur.user_id = ?
-        ");
+        SELECT r.name
+        FROM roles r
+        JOIN user_roles ur ON ur.role_id = r.id
+        WHERE ur.user_id = ?
+    ");
         $stmt->bind_param('i', $user['id']);
         $stmt->execute();
 
@@ -63,7 +73,7 @@ class AuthController
             $roles[] = $row['name'];
         }
 
-        // Session
+        // Session user
         $_SESSION['user'] = [
             'id'    => (int)$user['id'],
             'name'  => $user['name'],
@@ -71,10 +81,23 @@ class AuthController
             'roles' => $roles
         ];
 
+        // ✅ IMPORTANT: if user came from invite link, redirect back to join
+        if (!empty($_SESSION['join_invite_token'])) {
+            $token = $_SESSION['join_invite_token'];
+            unset($_SESSION['join_invite_token']);
+
+            ResponseService::json(true, 'Login successful', [
+                'redirect' => 'team/join?token=' . urlencode($token)
+            ]);
+            return;
+        }
+
+        // default redirect
         ResponseService::json(true, 'Login successful', [
             'redirect' => 'dashboard'
         ]);
     }
+
     public static function register(): void
     {
         if (session_status() === PHP_SESSION_NONE) {
