@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-
+require_once __DIR__ . '/Team.php';
 class Team
 {
     public static function allByCreator(int $userId): array
@@ -183,15 +183,17 @@ class Team
         $stmt = $conn->prepare("
             SELECT 
                 t.*,
-                COUNT(tm2.member_id) AS member_count
+                COUNT(tm2.member_id) AS member_count,
+                MAX(tm.joined_at) AS joined_at
             FROM teams t
             INNER JOIN team_members tm 
                 ON tm.team_id = t.id AND tm.member_id = ?
             LEFT JOIN team_members tm2
                 ON tm2.team_id = t.id
             GROUP BY t.id
-            ORDER BY tm.joined_at DESC
+            ORDER BY joined_at DESC
         ");
+
         $stmt->bind_param("i", $userId);
         $stmt->execute();
 
@@ -215,4 +217,46 @@ class Team
         return (bool) $stmt->get_result()->fetch_row();
     }
 
+    public static function findWithMembers(int $teamId): ?array
+    {
+        global $conn;
+
+        // 1. Get team info + member count
+        $stmt = $conn->prepare("
+        SELECT 
+            t.*,
+            COUNT(tm.member_id) AS member_count
+        FROM teams t
+        LEFT JOIN team_members tm ON tm.team_id = t.id
+        WHERE t.id = ?
+        GROUP BY t.id
+        LIMIT 1
+    ");
+        $stmt->bind_param("i", $teamId);
+        $stmt->execute();
+
+        $team = $stmt->get_result()->fetch_assoc();
+        if (!$team) {
+            return null;
+        }
+
+        // 2. Get team members detail
+        $stmt = $conn->prepare("
+        SELECT 
+            u.id,
+            u.name,
+            u.email,
+            tm.joined_at
+        FROM team_members tm
+        INNER JOIN users u ON u.id = tm.member_id
+        WHERE tm.team_id = ?
+        ORDER BY tm.joined_at ASC
+    ");
+        $stmt->bind_param("i", $teamId);
+        $stmt->execute();
+
+        $team['members'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
+
+        return $team;
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/Team.php';
 class Project
 {
    public static function allByCreator(int $userId): array
@@ -160,4 +161,126 @@ class Project
         return (int)($row['total'] ?? 0);
     }
     
+    public static function assignTeam(int $projectId, int $teamId): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            UPDATE projects
+            SET team_id = ?
+            WHERE id = ?
+        ");
+        $stmt->bind_param("ii", $teamId, $projectId);
+
+        return $stmt->execute();
+    }
+
+    public static function allByTeam(int $teamId): array
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            SELECT id, name, description, status, start_date, end_date
+            FROM projects
+            WHERE team_id = ?
+            ORDER BY created_at DESC
+        ");
+        $stmt->bind_param("i", $teamId);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
+    }
+
+    public static function unassignTeam(int $projectId): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            UPDATE projects
+            SET team_id = NULL
+            WHERE id = ?
+        ");
+
+        $stmt->bind_param("i", $projectId);
+
+        return $stmt->execute();
+    }
+
+    /**
+     * Get project detail with team + team members
+     */
+    public static function findWithTeam(int $projectId, int $userId): ?array
+    {
+        global $conn;
+
+        // 1. Project + team (authorized)
+        $stmt = $conn->prepare("
+            SELECT 
+                p.*,
+                t.id   AS team_id,
+                t.name AS team_name,
+                t.team_type,
+                t.created_by AS team_created_by
+            FROM projects p
+            LEFT JOIN teams t ON t.id = p.team_id
+            LEFT JOIN team_members tm ON tm.team_id = p.team_id
+            WHERE p.id = ?
+            AND (
+                    p.created_by = ?
+                    OR tm.member_id = ?
+            )
+            GROUP BY p.id
+            LIMIT 1
+        ");
+
+        $stmt->bind_param("iii", $projectId, $userId, $userId);
+        $stmt->execute();
+
+        $project = $stmt->get_result()->fetch_assoc();
+        if (!$project) {
+            return null;
+        }
+
+        // 2. Attach team members
+        if (!empty($project['team_id'])) {
+            $project['team'] = Team::findWithMembers((int)$project['team_id']);
+        } else {
+            $project['team'] = null;
+        }
+
+        return $project;
+    }
+
+    public static function syncMembersFromTeam(int $projectId, int $teamId): bool
+    {
+        global $conn;
+
+        $conn->begin_transaction();
+
+        try {
+            // 1. Clear old project members
+            $stmt = $conn->prepare("
+                DELETE FROM project_members
+                WHERE project_id = ?
+            ");
+            $stmt->bind_param("i", $projectId);
+            $stmt->execute();
+
+            // 2. Insert team members into project_members
+            $stmt = $conn->prepare("
+                INSERT INTO project_members (project_id, user_id, created_at)
+                SELECT ?, tm.member_id, NOW()
+                FROM team_members tm
+                WHERE tm.team_id = ?
+            ");
+            $stmt->bind_param("ii", $projectId, $teamId);
+            $stmt->execute();
+
+            $conn->commit();
+            return true;
+        } catch (Throwable $e) {
+            $conn->rollback();
+            return false;
+        }
+    }
 }

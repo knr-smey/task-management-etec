@@ -32,31 +32,33 @@
 
                     <!-- Action dropdown -->
                     <div class="relative ml-3 flex-shrink-0">
-                        <button type="button"
-                            class="teamMenuBtn inline-flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-100 transition-colors"
-                            aria-expanded="false">
-                            <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M6 10a2 2 0 11-4 0 2 2 0 014 0zm8 0a2 2 0 11-4 0 2 2 0 014 0zm6 0a2 2 0 11-4 0 2 2 0 014 0z" />
+                        <button type="button" class="teamMenuBtn inline-flex items-center justify-center w-9 h-9 rounded-lg hover:bg-gray-100 transition">
+                            <svg class="w-6 h-6 text-gray-700" fill="currentColor" viewBox="0 0 24 24">
+                                <circle cx="5" cy="12" r="2" />
+                                <circle cx="12" cy="12" r="2" />
+                                <circle cx="19" cy="12" r="2" />
                             </svg>
                         </button>
 
                         <!-- Dropdown menu -->
-                        <div
-                            class="teamMenu hidden absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-20">
+                        <div class="teamMenu hidden absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-20">
 
-                            <button type="button"
-                                class="btnInviteTeam w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
-                                data-id="<?= (int)$team['id'] ?>">
-                                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                                <span class="font-medium">Invite members</span>
-                            </button>
+                            <?php if (!empty($canCreateTeam)): ?>
+                                <!-- Invite members -->
+                                <button type="button"
+                                    class="btnInviteTeam w-full flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                                    data-id="<?= (int)$team['id'] ?>">
+                                    <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                    <span class="font-medium">Invite members</span>
+                                </button>
+                            <?php endif; ?>
 
+                            <!-- Team detail (EVERYONE) -->
                             <a href="<?= e(BASE_URL) ?>team/detail?id=<?= (int)$team['id'] ?>"
-                                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors group/item">
+                                class="flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors">
                                 <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -66,28 +68,34 @@
                                 <span class="font-medium">Team detail</span>
                             </a>
 
-                            <button type="button"
-                                class="btnEditTeam w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
-                                data-id="<?= (int)$team['id'] ?>">
-                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
-                                <span class="font-medium">Edit team</span>
-                            </button>
+                            <?php if (!empty($canCreateTeam)): ?>
+                                <!-- Edit team -->
+                                <button type="button"
+                                    class="btnEditTeam w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
+                                    data-id="<?= (int)$team['id'] ?>">
+                                    <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                    </svg>
+                                    <span class="font-medium">Edit team</span>
+                                </button>
 
-                            <div class="border-t border-gray-100"></div>
+                                <div class="border-t border-gray-100"></div>
 
-                            <button type="button"
-                                class="btnDeleteTeam w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                                data-id="<?= (int)$team['id'] ?>">
-                                <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0H7m2 0V5a2 2 0 012-2h2a2 2 0 012 2v2" />
-                                </svg>
-                                <span class="font-medium">Delete team</span>
-                            </button>
+                                <!-- Delete team -->
+                                <button type="button"
+                                    class="btnDeleteTeam w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                    data-id="<?= (int)$team['id'] ?>">
+                                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0H7m2 0V5a2 2 0 012-2h2a2 2 0 012 2v2" />
+                                    </svg>
+                                    <span class="font-medium">Delete team</span>
+                                </button>
+                            <?php endif; ?>
+
                         </div>
+
                     </div>
 
                 </div>
@@ -128,6 +136,12 @@
     <?php endif; ?>
 
 </div>
+
+<style>
+    .teamMenuBtn[aria-expanded="true"] {
+        background-color: #f3f4f6;
+    }
+</style>
 
 <script>
     $(document).ready(function() {

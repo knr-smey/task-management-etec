@@ -12,7 +12,7 @@ require_once __DIR__ . '/../Models/TeamMember.php';
 
 class TeamController
 {
-    // ✅ Admin only
+    // Admin only
     private static function authorizeAdmin(): array
     {
         $user = $_SESSION['user'] ?? null;
@@ -29,7 +29,7 @@ class TeamController
         return $user;
     }
 
-    // ✅ Any logged-in user (member included)
+    // Any logged-in user (member included)
     private static function authorizeAny(): array
     {
         $user = $_SESSION['user'] ?? null;
@@ -51,12 +51,12 @@ class TeamController
             userHasRole($user, 'instructor')
         );
 
-        // ✅ admin sees his created teams, member sees joined teams
+        // admin sees his created teams, member sees joined teams
         $teams = $isAdmin
             ? Team::allByCreator((int)$user['id'])
             : Team::allByMember((int)$user['id']);
 
-        // ✅ permission flag for UI
+        // permission flag for UI
         $canCreateTeam = $isAdmin;
 
         require __DIR__ . '/../../pages/team/index.php';
@@ -188,7 +188,7 @@ class TeamController
             return;
         }
 
-        // ✅ send this link to member
+        // send this link to member
         $link = full_url(BASE_URL . "team/join?token=" . $token);
 
         ResponseService::json(true, "Invite created", [
@@ -214,7 +214,7 @@ class TeamController
             redirect('login');
         }
 
-        // ✅ now logged in => show join page
+        // now logged in => show join page
         $invite = TeamInvite::findByToken($inviteToken);
 
         $error = '';
@@ -280,15 +280,36 @@ class TeamController
         $isOwner  = ((int)$team['created_by'] === (int)$user['id']);
         $isMember = TeamMember::exists($teamId, (int)$user['id']);
 
+        // roles: super_admin, admin, instructor
+        $isAdmin = (
+            userHasRole($user, 'super_admin') ||
+            userHasRole($user, 'admin') ||
+            userHasRole($user, 'instructor')
+        );
+
         if (!$isOwner && !$isMember) {
             die("You don't have permission.");
         }
 
+        // team data
         $sessions = TeamSession::allByTeam($teamId);
         $members  = TeamMember::allByTeam($teamId);
         $memberCount = count($members);
 
+        // project data
+        require_once __DIR__ . '/../Models/Project.php';
+
+        // ✅ projects shown under "Projects"
+        $projects = Project::allByTeam($teamId);
+
+        // ✅ projects shown in Assign Project modal (ADMIN ONLY)
+        $assignableProjects = [];
+        if ($isAdmin) {
+            $assignableProjects = Project::allByCreator((int)$user['id']);
+        }
+
         $token = csrf_token();
+
         require __DIR__ . '/../../pages/team/detail.php';
     }
 }

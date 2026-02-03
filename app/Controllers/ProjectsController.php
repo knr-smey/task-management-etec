@@ -8,23 +8,33 @@ require_once __DIR__ . '/../../includes/helpers.php';
 
 class ProjectsController
 {
-    private static function authorize(): array
+    private static function authorize(bool $allowMember = false): array
     {
         $user = $_SESSION['user'] ?? [];
 
+        if (!$user) {
+            ResponseService::json(false, 'Unauthorized', [], 401);
+        }
+
+        // ✅ allow member for read-only pages
+        if ($allowMember) {
+            return $user;
+        }
+
+        // ❌ strict access (admin only)
         if (
             !userHasRole($user, 'super_admin') &&
             !userHasRole($user, 'admin') &&
             !userHasRole($user, 'instructor')
         ) {
-            // if this is a PAGE request -> you can redirect instead
             ResponseService::json(false, 'Forbidden', [], 403);
         }
 
         return $user;
     }
 
-    // ✅ PAGE: show projects in dashboard (member cannot see)
+
+    // PAGE: show projects in dashboard (member cannot see)
     public static function index(): void
     {
         $user = self::authorize();
@@ -32,12 +42,12 @@ class ProjectsController
         // only show projects created by himself
         $projects = Project::allByCreator((int)$user['id']);
         
-        // ✅ choose your page path (example)
+        // choose your page path (example)
         require __DIR__ . '/../../pages/dashboard/index.php';
     }
     
 
-    // ✅ API: create/update (same like member store)
+    // API: create/update (same like member store)
     public static function store(): void
     {
         $user = self::authorize();
@@ -55,7 +65,7 @@ class ProjectsController
         $name = trim((string)($_POST['name'] ?? ''));
         if ($name === '') ResponseService::json(false, 'Project name is required', [], 422);
 
-        // ✅ if you want “edit only my project”
+        // if you want “edit only my project”
         if ($id > 0) {
             $old = Project::find($id);
             if (!$old) ResponseService::json(false, 'Project not found', [], 404);
@@ -86,7 +96,7 @@ class ProjectsController
         }
     }
 
-    // ✅ API: delete (same like member destroy)
+    // API: delete (same like member destroy)
     public static function destroy(): void
     {
         $user = self::authorize();
@@ -112,28 +122,33 @@ class ProjectsController
 
     public static function show(int $id): void
     {
+        // allow member to view project detail
         $user = self::authorize();
 
-        if ($id <= 0) redirect('projects');
-
-        $project = Project::find($id);
-        if (!$project) redirect('projects');
-
-        // only owner
-        if ((int)$project['created_by'] !== (int)$user['id']) {
+        if ($id <= 0) {
             redirect('projects');
         }
 
-        // all members
+        // 🔥 AUTHORIZED project fetch
+        $project = Project::findWithTeam($id, (int)$user['id']);
+
+        if (!$project) {
+            // not found OR no permission
+            redirect('projects');
+        }
+
+        // all members (for assign UI)
         $members = User::membersOnly();
 
-        // important (for checked)
+        // assigned project members (checkbox checked)
         $assignedIds = Project::getAssignedMemberIds((int)$project['id']);
 
         $token = csrf_token();
 
         require __DIR__ . '/../../pages/projects/show.php';
     }
+
+
 
 
     public static function assignMembers(): void
@@ -162,4 +177,80 @@ class ProjectsController
         ResponseService::json(false, 'Assign failed', [], 500);
     }
 
+    public static function assignTeam(): void
+    {
+        $user = self::authorize(); // admin/instructor/super_admin only
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ResponseService::json(false, 'Invalid request method', [], 405);
+        }
+
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+        }
+
+        $projectId = (int)($_POST['project_id'] ?? 0);
+        $teamId    = (int)($_POST['team_id'] ?? 0);
+
+        if ($projectId <= 0 || $teamId <= 0) {
+            ResponseService::json(false, 'Project ID and Team ID are required', [], 422);
+        }
+
+        // optional: check project owner
+        $project = Project::find($projectId);
+        if (!$project) {
+            ResponseService::json(false, 'Project not found', [], 404);
+        }
+
+        if ((int)$project['created_by'] !== (int)$user['id']) {
+            ResponseService::json(false, 'Forbidden (not your project)', [], 403);
+        }
+
+        $ok = Project::assignTeam($projectId, $teamId);
+
+        if ($ok) {
+            Project::syncMembersFromTeam($projectId, $teamId);
+
+            ResponseService::json(true, 'Team assigned successfully');
+        }
+
+        ResponseService::json(false, 'Assign team failed', [], 500);
+    }
+
+    public static function unassignTeam(): void
+    {
+        $user = self::authorize(); // admin / instructor / super_admin
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ResponseService::json(false, 'Invalid request method', [], 405);
+        }
+
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+        }
+
+        $projectId = (int)($_POST['project_id'] ?? 0);
+
+        if ($projectId <= 0) {
+            ResponseService::json(false, 'Project ID required', [], 422);
+        }
+
+        $project = Project::find($projectId);
+        if (!$project) {
+            ResponseService::json(false, 'Project not found', [], 404);
+        }
+
+        // only project owner can unassign
+        if ((int)$project['created_by'] !== (int)$user['id']) {
+            ResponseService::json(false, 'Forbidden (not your project)', [], 403);
+        }
+
+        $ok = Project::unassignTeam($projectId);
+
+        if ($ok) {
+            ResponseService::json(true, 'Project unassigned from team');
+        }
+
+        ResponseService::json(false, 'Unassign failed', [], 500);
+    }
 }
