@@ -50,6 +50,7 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
 
     <?php require __DIR__ . '/../components/projectTable.php'; ?>
     <?php require __DIR__ . '/../components/project-modal.php'; ?>
+    <?php require __DIR__ . '/../../pages/components/deleteModal.php'; ?>
 
 <?php else: ?>
     <!-- Member: hide project UI -->

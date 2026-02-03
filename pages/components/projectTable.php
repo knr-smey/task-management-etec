@@ -99,7 +99,7 @@
                                     <button
                                         type="button"
                                         class="deleteBtn inline-flex items-center justify-center w-8 h-8 rounded-lg text-white bg-red-500 hover:bg-red-600"
-                                        data-id="<?= (int)$p['id'] ?>"
+                                        data-id="<?= $p['id'] ?>"
                                         data-url="<?= e(BASE_URL) ?>delete-project"
                                         data-title="Delete Project"
                                         data-message="Are you sure you want to delete this project?"

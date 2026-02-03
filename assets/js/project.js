@@ -103,14 +103,15 @@ $(document).ready(function () {
     });
   });
 
-  $(document).on("click", ".deleteBtn", function () {
-    openDeleteModal({
-      id: $(this).data("id"),
-      url: $(this).data("url") || (window.BASE_URL + "delete-project"),
-      title: $(this).data("title") || "Confirm Delete",
-      message: $(this).data("message") || "Are you sure you want to delete this item?",
-    });
-  });
+  // $(document).on("click", ".deleteBtn", function () {
+  //   // alert(123)
+  //   openDeleteModal({
+  //     id: $(this).data("id"),
+  //     url: $(this).data("url") || (window.BASE_URL + "delete-project"),
+  //     title: $(this).data("title") || "Confirm Delete",
+  //     message: $(this).data("message") || "Are you sure you want to delete this item?",
+  //   });
+  // });
 
   $(document).on("click", "tr.projectRow", function (e) {
     if ($(e.target).closest("button, a").length) return;
