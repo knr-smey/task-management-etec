@@ -12,7 +12,16 @@
             </div>
         </div>
 
-        <a href="<?= e(BASE_URL) ?>projects" class="px-4 py-2 rounded-md border hover:bg-gray-50">
+        <?php
+            $user = $_SESSION['user'] ?? [];
+            $isAdmin = (
+                userHasRole($user, 'super_admin') ||
+                userHasRole($user, 'admin') ||
+                userHasRole($user, 'instructor')
+            );
+            $backUrl = $isAdmin ? 'projects' : 'dashboard';
+        ?>
+        <a href="<?= e(BASE_URL . $backUrl) ?>" class="px-4 py-2 rounded-md border hover:bg-gray-50">
             ← Back
         </a>
     </div>

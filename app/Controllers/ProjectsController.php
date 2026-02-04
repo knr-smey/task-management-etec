@@ -123,7 +123,7 @@ class ProjectsController
     public static function show(int $id): void
     {
         // allow member to view project detail
-        $user = self::authorize();
+        $user = self::authorize(true);
 
         if ($id <= 0) {
             redirect('projects');

@@ -24,7 +24,7 @@
                 </tr>
             </thead>
 
-            <tbody class="divide-y divide-gray-200 bg-white">
+            <tbody id="membersTableBody" class="divide-y divide-gray-200 bg-white invisible">
                 <?php foreach ($members as $m): ?>
                     <tr class="hover:bg-blue-50/50 transition-colors duration-150"
                         data-id="<?= (int)$m['id'] ?>"
@@ -125,5 +125,7 @@
             paginationSelector: "#membersPagination",
             itemsPerPage: 5
         });
+
+        $("#membersTableBody").removeClass("invisible");
     });
 </script>

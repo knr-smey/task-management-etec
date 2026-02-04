@@ -7,15 +7,6 @@ require __DIR__ . '/../../includes/helpers.php';
 require __DIR__ . '/../../includes/auth.php';
 
 require_once __DIR__ . '/../../includes/layouts/app.php';
-$groupedMembers = [];
-
-foreach ($members as $m) {
-    $role = ((int)$m['id'] === (int)$team['created_by'])
-        ? 'Manager'
-        : 'Member';
-
-    $groupedMembers[$role][] = $m['name'];
-}
 ?>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -29,7 +20,10 @@ foreach ($members as $m) {
 
             <?php require_once __DIR__ . '/../components/team-schedule.php'; ?>
 
-            <?php require_once __DIR__ . '/../components/team-members.php'; ?>
+            <?php
+                $groupedMembers = $groupedMembers ?? [];
+                require_once __DIR__ . '/../components/team-members.php'; 
+            ?>
 
         </div>
 

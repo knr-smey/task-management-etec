@@ -206,9 +206,6 @@ class Project
         return $stmt->execute();
     }
 
-    /**
-     * Get project detail with team + team members
-     */
     public static function findWithTeam(int $projectId, int $userId): ?array
     {
         global $conn;
@@ -224,16 +221,18 @@ class Project
             FROM projects p
             LEFT JOIN teams t ON t.id = p.team_id
             LEFT JOIN team_members tm ON tm.team_id = p.team_id
+            LEFT JOIN project_members pm ON pm.project_id = p.id
             WHERE p.id = ?
             AND (
                     p.created_by = ?
                     OR tm.member_id = ?
+                    OR pm.user_id = ?
             )
             GROUP BY p.id
             LIMIT 1
         ");
 
-        $stmt->bind_param("iii", $projectId, $userId, $userId);
+        $stmt->bind_param("iiii", $projectId, $userId, $userId, $userId);
         $stmt->execute();
 
         $project = $stmt->get_result()->fetch_assoc();
@@ -282,5 +281,32 @@ class Project
             $conn->rollback();
             return false;
         }
+    }
+
+    public static function fetchProjectBestonUser_id(int $userId): array
+    {
+        global $conn;
+
+        $sql = "
+            SELECT DISTINCT
+                p.id,
+                p.name,
+                p.team_id
+            FROM projects p
+            JOIN project_members pm
+                ON pm.project_id = p.id
+            WHERE pm.user_id = ?
+            ORDER BY p.name
+        ";
+
+        $stmt = $conn->prepare($sql);
+        if (!$stmt) {
+            return [];
+        }
+
+        $stmt->bind_param('i', $userId);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
     }
 }

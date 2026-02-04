@@ -24,7 +24,7 @@
                 </tr>
             </thead>
 
-            <tbody class="divide-y divide-gray-200 bg-white">
+            <tbody id="projectTableBody" class="divide-y divide-gray-200 bg-white invisible">
                 <?php foreach ($projects as $p): ?>
                     <tr class="projectRow hover:bg-blue-50/50 transition-colors duration-150"
                         data-href="<?= e(BASE_URL) ?>project-detail?id=<?= (int)$p['id'] ?>"
@@ -134,5 +134,7 @@
             paginationSelector: "#projectPagenation",
             itemsPerPage: 5
         });
+
+        $("#projectTableBody").removeClass("invisible");
     });
 </script>

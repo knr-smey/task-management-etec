@@ -269,40 +269,68 @@ class TeamController
      */
     public static function detail(): void
     {
+        // any logged-in user
         $user = self::authorizeAny();
 
+        // team id from route
         $teamId = (int)($_GET['id'] ?? 0);
-        if ($teamId <= 0) redirect('dashboard');
+        if ($teamId <= 0) {
+            redirect('dashboard');
+        }
 
-        $team = Team::find($teamId);
-        if (!$team) redirect('dashboard');
+        // 🔥 team + owner
+        $team = Team::findWithOwner($teamId);
+        if (!$team) {
+            redirect('dashboard');
+        }
 
+        // permission
         $isOwner  = ((int)$team['created_by'] === (int)$user['id']);
         $isMember = TeamMember::exists($teamId, (int)$user['id']);
 
-        // roles: super_admin, admin, instructor
+        if (!$isOwner && !$isMember) {
+            die("You don't have permission.");
+        }
+
+        // 🔥 team members
+        $members = TeamMember::allByTeam($teamId);
+        $memberCount = count($members);
+
+        // 🔥 BUILD MEMBERS FOR UI
+        $groupedMembers = [
+            'Manager' => [],
+            'Member'  => [],
+        ];
+
+        // Manager = team owner
+        if (!empty($team['owner_name'])) {
+            $groupedMembers['Manager'][] = $team['owner_name'];
+        }
+
+        // Team members
+        foreach ($members as $m) {
+            if (!empty($m['name']) && $m['name'] !== $team['owner_name']) {
+                $groupedMembers['Member'][] = $m['name'];
+            }
+        }
+
+        // remove empty roles
+        $groupedMembers = array_filter($groupedMembers);
+
+        // team schedule
+        $sessions = TeamSession::allByTeam($teamId);
+
+        // projects under team
+        require_once __DIR__ . '/../Models/Project.php';
+        $projects = Project::allByTeam($teamId);
+
+        // assign modal (admin only)
         $isAdmin = (
             userHasRole($user, 'super_admin') ||
             userHasRole($user, 'admin') ||
             userHasRole($user, 'instructor')
         );
 
-        if (!$isOwner && !$isMember) {
-            die("You don't have permission.");
-        }
-
-        // team data
-        $sessions = TeamSession::allByTeam($teamId);
-        $members  = TeamMember::allByTeam($teamId);
-        $memberCount = count($members);
-
-        // project data
-        require_once __DIR__ . '/../Models/Project.php';
-
-        // ✅ projects shown under "Projects"
-        $projects = Project::allByTeam($teamId);
-
-        // ✅ projects shown in Assign Project modal (ADMIN ONLY)
         $assignableProjects = [];
         if ($isAdmin) {
             $assignableProjects = Project::allByCreator((int)$user['id']);
@@ -310,6 +338,7 @@ class TeamController
 
         $token = csrf_token();
 
+        // render page
         require __DIR__ . '/../../pages/team/detail.php';
     }
 }

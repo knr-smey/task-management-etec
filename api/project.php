@@ -20,7 +20,7 @@ if ($route === 'projects' && $method === 'GET') {
 }
 
 // PAGE: show project detail
-if ($route === 'project-detail' && $method === 'GET') {
+if (($route === 'project-detail' || $route === 'projects/show') && $method === 'GET') {
     $id = (int)($_GET['id'] ?? 0);
     // echo $id;
     ProjectsController::show($id);

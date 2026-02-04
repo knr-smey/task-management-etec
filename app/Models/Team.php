@@ -53,6 +53,30 @@ class Team
         $res = $stmt->get_result()->fetch_assoc();
         return $res ?: null;
     }
+    public static function findWithOwner(int $teamId): ?array
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+        SELECT
+            t.id,
+            t.name,
+            t.team_type,
+            t.created_by,
+            t.created_at,
+            u.name AS owner_name
+        FROM teams t
+        JOIN users u ON u.id = t.created_by
+        WHERE t.id = ?
+        LIMIT 1
+    ");
+        $stmt->bind_param("i", $teamId);
+        $stmt->execute();
+
+        $team = $stmt->get_result()->fetch_assoc();
+
+        return $team ?: null;
+    }
 
     public static function create(array $data): ?int
     {
