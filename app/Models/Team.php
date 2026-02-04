@@ -270,6 +270,7 @@ class Team
             u.id,
             u.name,
             u.email,
+            u.course,
             tm.joined_at
         FROM team_members tm
         INNER JOIN users u ON u.id = tm.member_id

@@ -12,4 +12,11 @@
 
     'team/join'         => 'api/team.php',
     'team/join-confirm' => 'api/team.php',
+
+    'task/list'   => 'api/task.php',
+    'task/create' => 'api/task.php',
+    'task/update' => 'api/task.php',
+    'task/delete' => 'api/task.php',
+    'task/assign' => 'api/task.php',
+    'task/status' => 'api/task.php',
 ];

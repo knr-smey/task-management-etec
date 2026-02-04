@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../Models/Project.php';
 require_once __DIR__ . '/../Models/User.php';
+require_once __DIR__ . '/../Models/Task.php';
+require_once __DIR__ . '/../Models/TaskStatus.php';
 require_once __DIR__ . '/../Services/ResponseService.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 
@@ -142,6 +144,12 @@ class ProjectsController
 
         // assigned project members (checkbox checked)
         $assignedIds = Project::getAssignedMemberIds((int)$project['id']);
+
+        // tasks under project
+        $tasks = Task::allByProject((int)$project['id']);
+
+        // task statuses for actions
+        $taskStatuses = TaskStatus::all();
 
         $token = csrf_token();
 

@@ -18,4 +18,9 @@ return [
     'create-team'  => 'api/team.php',
     'team/detail'  => 'api/team.php',
     'team/join'    => 'api/team.php',
+
+    'task/list'   => 'api/task.php',
+    'task/create' => 'api/task.php',
+    'task/update' => 'api/task.php',
+    'task/delete' => 'api/task.php',
 ];
