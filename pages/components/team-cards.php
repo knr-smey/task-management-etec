@@ -72,7 +72,12 @@
                                 <!-- Edit team -->
                                 <button type="button"
                                     class="btnEditTeam w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 transition-colors"
-                                    data-id="<?= (int)$team['id'] ?>">
+                                    data-id="<?= (int)$team['id'] ?>"
+                                    data-name="<?= e($team['name']) ?>"
+                                    data-type="<?= e($team['team_type']) ?>"
+                                    data-day="<?= e($team['sessions'][0]['day'] ?? '') ?>"
+                                    data-start="<?= e($team['sessions'][0]['start'] ?? '') ?>"
+                                    data-end="<?= e($team['sessions'][0]['end'] ?? '') ?>">
                                     <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -84,8 +89,10 @@
 
                                 <!-- Delete team -->
                                 <button type="button"
-                                    class="btnDeleteTeam w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                                    data-id="<?= (int)$team['id'] ?>">
+                                    class="deleteBtn w-full text-left flex items-center gap-3 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                                    data-id="<?= (int)$team['id'] ?>"
+                                    data-name="<?= e($team['name']) ?>"
+                                    data-url="<?= e(BASE_URL) ?>api/team.php?url=delete-team">
                                     <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M9 7h6m2 0H7m2 0V5a2 2 0 012-2h2a2 2 0 012 2v2" />
@@ -124,7 +131,10 @@
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
                                     </svg>
-                                    <span><?= strtoupper(e($s['day'])) ?> · <?= e(substr($s['start'], 0, 5)) ?>–<?= e(substr($s['end'], 0, 5)) ?></span>
+                                    <span>
+                                        <?= strtoupper(e($s['day'])) ?> ·
+                                        <?= e(date('g:i A', strtotime($s['start']))) ?>–<?= e(date('g:i A', strtotime($s['end']))) ?>
+                                    </span>
                                 </span>
                             <?php endforeach; ?>
                         </div>
@@ -137,100 +147,3 @@
 
 </div>
 
-<style>
-    .teamMenuBtn[aria-expanded="true"] {
-        background-color: #f3f4f6;
-    }
-</style>
-
-<script>
-    $(document).ready(function() {
-
-        // Toggle dropdown
-        $(document).on("click", ".teamMenuBtn", function(e) {
-            e.stopPropagation();
-
-            const $menu = $(this).closest(".relative").find(".teamMenu");
-            const isHidden = $menu.hasClass("hidden");
-
-            // Close all menus
-            $(".teamMenu").addClass("hidden");
-
-            // Toggle this menu
-            if (isHidden) {
-                $menu.removeClass("hidden");
-            }
-        });
-
-        // Click outside to close all
-        $(document).on("click", function() {
-            $(".teamMenu").addClass("hidden");
-        });
-
-        // Prevent menu click from closing
-        $(document).on("click", ".teamMenu", function(e) {
-            e.stopPropagation();
-        });
-
-        // Close menu on action
-        $(document).on("click", ".teamMenu a, .teamMenu button", function() {
-            $(".teamMenu").addClass("hidden");
-        });
-
-        $(document).on("click", ".btnInviteTeam", function() {
-            const teamId = $(this).data("id");
-            const csrf = $("input[name='csrf']").val(); // hidden input in your page
-            const BASE_URL = window.BASE_URL || "<?= e(BASE_URL) ?>";
-            const API_TEAM = BASE_URL + "api/team.php?url=";
-
-
-            $.ajax({
-                url: API_TEAM + "create-invite",
-                method: "POST",
-                dataType: "json",
-                data: {
-                    team_id: teamId,
-                    csrf
-                },
-                success: function(res) {
-                    if (!res.status) {
-                        Swal.fire({
-                            icon: "error",
-                            title: "Failed",
-                            text: res.message || "Cannot create invite"
-                        });
-                        return;
-                    }
-
-                    const link = res.data?.link || res.link;
-
-                    Swal.fire({
-                        icon: "success",
-                        title: "Invite link ready",
-                        html: `
-                            <div class="text-left">
-                                <p class="text-sm text-gray-600 mb-2">Copy and send this to member:</p>
-                                <input id="inviteLinkInput" class="w-full border px-3 py-2 rounded" value="${link}" readonly />
-                            </div>
-                            `,
-                        confirmButtonText: "Copy link",
-                        showCancelButton: true,
-                        cancelButtonText: "Close",
-                        preConfirm: () => {
-                            const el = document.getElementById("inviteLinkInput");
-                            el.select();
-                            navigator.clipboard.writeText(el.value);
-                        }
-                    });
-                },
-                error: function() {
-                    Swal.fire({
-                        icon: "error",
-                        title: "Server error"
-                    });
-                }
-            });
-        });
-
-    });
-</script>

@@ -20,6 +20,14 @@ if ($route === 'create-team') {
     TeamController::store();
     exit;
 }
+if ($route === 'update-team') {
+    TeamController::update();
+    exit;
+}
+if ($route === 'delete-team') {
+    TeamController::destroy();
+    exit;
+}
 if ($route === 'team-cards') {
     TeamController::cards();
     exit;

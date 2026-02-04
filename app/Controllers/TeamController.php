@@ -51,10 +51,35 @@ class TeamController
             userHasRole($user, 'instructor')
         );
 
-        // admin sees his created teams, member sees joined teams
-        $teams = $isAdmin
-            ? Team::allByCreator((int)$user['id'])
-            : Team::allByMember((int)$user['id']);
+        // admin sees his created teams, member sees joined teams (with sessions)
+        $rows = $isAdmin
+            ? TeamSession::allWithSessionsByCreator((int)$user['id'])
+            : TeamSession::allWithSessionsByMember((int)$user['id']);
+
+        $teams = [];
+        foreach ($rows as $row) {
+            $teamId = (int)$row['team_id'];
+
+            if (!isset($teams[$teamId])) {
+                $teams[$teamId] = [
+                    'id'         => $teamId,
+                    'name'       => $row['team_name'],
+                    'team_type'  => $row['team_type'],
+                    'created_at' => $row['created_at'],
+                    'sessions'   => [],
+                ];
+            }
+
+            if (!empty($row['session_id'])) {
+                $teams[$teamId]['sessions'][] = [
+                    'day'   => $row['day_of_week'],
+                    'start' => $row['start_time'],
+                    'end'   => $row['end_time'],
+                ];
+            }
+        }
+
+        $teams = array_values($teams);
 
         // permission flag for UI
         $canCreateTeam = $isAdmin;
@@ -123,6 +148,132 @@ class TeamController
     }
 
     /**
+     * ACTION: Update team (ADMIN ONLY)
+     * Update teams + team_sessions (single session)
+     */
+    public static function update(): void
+    {
+        $user = self::authorizeAdmin();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ResponseService::json(false, 'Invalid request method', [], 405);
+            return;
+        }
+
+        if (function_exists('verify_csrf')) {
+            verify_csrf($_POST['csrf'] ?? '');
+        }
+
+        $teamId  = (int)($_POST['team_id'] ?? 0);
+        $name     = trim((string)($_POST['name'] ?? ''));
+        $teamType = trim((string)($_POST['team_type'] ?? 'unknown-type'));
+
+        $day   = trim((string)($_POST['day'] ?? ''));
+        $start = trim((string)($_POST['start_time'] ?? ''));
+        $end   = trim((string)($_POST['end_time'] ?? ''));
+
+        if ($teamId <= 0) {
+            ResponseService::json(false, 'Invalid team', [], 422);
+            return;
+        }
+
+        if ($name === '' || $day === '' || $start === '' || $end === '') {
+            ResponseService::json(false, 'Missing fields', [], 422);
+            return;
+        }
+
+        if (strtotime($start) >= strtotime($end)) {
+            ResponseService::json(false, 'Invalid time range', [], 422);
+            return;
+        }
+
+        $team = Team::find($teamId);
+        if (!$team) {
+            ResponseService::json(false, 'Team not found', [], 404);
+            return;
+        }
+
+        if ((int)$team['created_by'] !== (int)$user['id']) {
+            ResponseService::json(false, 'Forbidden (not your team)', [], 403);
+            return;
+        }
+
+        global $conn;
+
+        try {
+            $conn->begin_transaction();
+
+            $ok = Team::update($teamId, [
+                'name' => $name,
+                'team_type' => $teamType,
+            ]);
+
+            if (!$ok) throw new Exception('Update team failed');
+
+            if (!TeamSession::deleteByTeam($teamId)) {
+                throw new Exception('Clear old sessions failed');
+            }
+
+            $ok = TeamSession::create([
+                'team_id'     => $teamId,
+                'day_of_week' => $day,
+                'start_time'  => $start,
+                'end_time'    => $end,
+            ]);
+
+            if (!$ok) throw new Exception('Create team session failed');
+
+            $conn->commit();
+            ResponseService::json(true, 'Team updated successfully', [], 200);
+        } catch (Throwable $e) {
+            $conn->rollback();
+            ResponseService::json(false, 'Update failed', ['error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * ACTION: Delete team (ADMIN ONLY)
+     */
+    public static function destroy(): void
+    {
+        $user = self::authorizeAdmin();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ResponseService::json(false, 'Invalid request method', [], 405);
+            return;
+        }
+
+        if (function_exists('verify_csrf')) {
+            verify_csrf($_POST['csrf'] ?? '');
+        }
+
+        $id = (int)($_POST['delete_id'] ?? 0);
+        if ($id <= 0) {
+            ResponseService::json(false, 'ID is required', [], 422);
+            return;
+        }
+
+        $old = Team::find($id);
+        if (!$old) {
+            ResponseService::json(false, 'Team not found', [], 404);
+            return;
+        }
+
+        if ((int)$old['created_by'] !== (int)$user['id']) {
+            ResponseService::json(false, 'Forbidden (not your team)', [], 403);
+            return;
+        }
+
+        $ok = Team::delete($id);
+        if ($ok) {
+            ResponseService::json(true, 'Team deleted', []);
+            return;
+        }
+
+        ResponseService::json(false, 'Delete failed', [], 500);
+    }
+
+    /**
      * PARTIAL: Team cards (ADMIN ONLY)
      */
     public static function cards(): void
@@ -155,6 +306,9 @@ class TeamController
         }
 
         $teams = array_values($teams);
+
+        // permission flag for UI (admin only here)
+        $canCreateTeam = true;
 
         ob_start();
         require __DIR__ . '/../../pages/components/team-cards.php';

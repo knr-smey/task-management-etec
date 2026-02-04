@@ -30,66 +30,6 @@ if ($currentProjectId > 0 && !empty($navbarProjects)) {
 }
 ?>
 
-<style>
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-
-        to {
-            opacity: 1;
-        }
-    }
-
-    .dropdown-enter {
-        animation: slideDown 0.2s ease-out;
-    }
-
-    .project-item {
-        transition: all 0.2s ease;
-    }
-
-    .project-item:hover {
-        transform: translateX(4px);
-    }
-
-    .navbar-blur {
-        backdrop-filter: blur(12px);
-        background: linear-gradient(135deg, rgba(30, 58, 138, 0.95) 0%, rgba(29, 78, 216, 0.95) 100%);
-    }
-
-    .avatar-gradient {
-        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
-    }
-
-    .project-badge {
-        background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-    }
-
-    .search-input:focus {
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    }
-
-    .dropdown-shadow {
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
-            0 10px 10px -5px rgba(0, 0, 0, 0.04),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
-    }
-</style>
-
 <nav class="navbar-blur text-white px-6 h-16 flex items-center justify-between fixed top-0 left-0 right-0 z-50 border-b border-white/10">
     <!-- Left -->
     <div class="flex items-center gap-3">
@@ -113,12 +53,11 @@ if ($currentProjectId > 0 && !empty($navbarProjects)) {
         <div class="relative" id="projectSwitcher">
             <button
                 type="button"
-                class="flex items-center gap-3 px-4 py-2.5 bg-white/10 hover:bg-white/20
-                       text-white rounded-xl shadow-lg transition-all duration-200 w-60 justify-between 
-                       border border-white/20 backdrop-blur-sm group"
+                class="flex items-center gap-3 px-4 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl shadow-lg transition-all duration-200 w-60 justify-between border border-white/20 backdrop-blur-sm group"
                 onclick="toggleProjectDropdown()">
+
                 <div class="flex items-center gap-3 truncate">
-                    <div class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                    <div class="w-6 h-6 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
                         <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />

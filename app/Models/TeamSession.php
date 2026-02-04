@@ -50,6 +50,38 @@ class TeamSession
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
     }
 
+    public static function allWithSessionsByMember(int $userId): array
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            SELECT
+                t.id            AS team_id,
+                t.name          AS team_name,
+                t.team_type,
+                t.created_at,
+
+                ts.id           AS session_id,
+                ts.day_of_week,
+                ts.start_time,
+                ts.end_time
+            FROM teams t
+            INNER JOIN team_members tm
+                ON tm.team_id = t.id AND tm.member_id = ?
+            LEFT JOIN team_sessions ts
+                ON ts.team_id = t.id
+            ORDER BY
+                t.id DESC,
+                FIELD(ts.day_of_week,'mon','tue','wed','thu','fri','sat','sun'),
+                ts.start_time
+        ");
+
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
+    }
+
     public static function find(int $id): ?array
     {
         global $conn;

@@ -1,62 +1,108 @@
 <?php
 declare(strict_types=1);
 
-require __DIR__ . '/../../config/app.php';
-require __DIR__ . '/../../includes/helpers.php';
-require __DIR__ . '/../../includes/auth.php';
-
-require_login();
-
-$user = $_SESSION['user'] ?? [];
-$isMember = userHasRole($user, 'member');
-
-// only these roles can see projects
-$canSeeProjects =
-    userHasRole($user, 'super_admin') ||
-    userHasRole($user, 'admin') ||
-    userHasRole($user, 'instructor');
-
-$projects = [];
-
-if ($canSeeProjects) {
-    require_once __DIR__ . '/../../app/Models/Project.php';
-    // show only his own projects (recommended)
-    $projects = Project::allByCreator((int)$user['id']);
-}
-
 require_once __DIR__ . '/../../includes/layouts/app.php';
 ?>
 
+<div class="container mx-auto">
+    <!-- Header Section -->
+    <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
+        <p class="text-gray-600">Welcome back, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>! Here's what's happening today.</p>
+    </div>
 
-<h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard</h1>
+    <?php if ($canSeeProjects): ?>
+    <!-- Overview Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <?php
+        $badgeText = ($projectGrowthPercent > 0 ? '+' : '') . $projectGrowthPercent . '%';
+        $gradientClass = 'gradient-1';
+        $iconBgClass = 'bg-purple-100';
+        $iconSvg = '<svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>';
+        $badgeClass = 'text-green-500 bg-green-50';
+        $title = 'Total Projects';
+        $value = (string)count($projects);
+        $footerText = 'Trending up';
+        $footerIconSvg = '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>';
+        require __DIR__ . '/../components/stat-card.php';
 
-<!-- Member can still see dashboard content -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-3">
-    <div class="bg-slate-50 p-4 rounded-xl border">Overview card 1</div>
-    <div class="bg-slate-50 p-4 rounded-xl border">Overview card 2</div>
-    <div class="bg-slate-50 p-4 rounded-xl border">Overview card 3</div>
+        $badgeText = number_format($activeMembers);
+        $gradientClass = 'gradient-2';
+        $iconBgClass = 'bg-pink-100';
+        $iconSvg = '<svg class="w-8 h-8 text-pink-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>';
+        $badgeClass = 'text-blue-500 bg-blue-50';
+        $title = 'Active Members';
+        $value = number_format($activeMembers);
+        $footerText = 'Last 24 hours';
+        $footerIconSvg = '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        require __DIR__ . '/../components/stat-card.php';
+
+        $badgeText = $completionRate . '%';
+        $gradientClass = 'gradient-3';
+        $iconBgClass = 'bg-blue-100';
+        $iconSvg = '<svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
+        $badgeClass = 'text-green-500 bg-green-50';
+        $title = 'Completed Tasks';
+        $value = number_format($doneTasks);
+        $footerText = 'This month';
+        $footerIconSvg = '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path></svg>';
+        require __DIR__ . '/../components/stat-card.php';
+
+        $badgeText = $performanceScore . '%';
+        $gradientClass = 'gradient-4';
+        $iconBgClass = 'bg-teal-100';
+        $iconSvg = '<svg class="w-8 h-8 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>';
+        $badgeClass = 'text-orange-500 bg-orange-50';
+        $title = 'Performance';
+        $value = $performanceScore . '%';
+        $footerText = 'Overall rating';
+        $footerIconSvg = '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>';
+        require __DIR__ . '/../components/stat-card.php';
+        ?>
+    </div>
+    <?php endif; ?>
+
+    <?php if ($canSeeProjects): ?>
+        <!-- Projects Section -->
+        <div>
+            <div class="bg-white rounded-2xl shadow-lg p-6 mb-6">
+                <div class="flex items-center justify-between mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Projects</h2>
+                        <p class="text-gray-600 text-sm mt-1">Manage and track your projects</p>
+                    </div>
+
+                    <button id="openCreateProjectBtn"
+                        class="bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 flex items-center space-x-2 font-medium">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        <span>New Project</span>
+                    </button>
+                </div>
+
+                <?php require __DIR__ . '/../components/projectTable.php'; ?>
+            </div>
+        </div>
+
+        <?php require __DIR__ . '/../components/project-modal.php'; ?>
+        <?php require __DIR__ . '/../../pages/components/deleteModal.php'; ?>
+
+    <?php else: ?>
+        <!-- Member: hide project UI -->
+        <div>
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8 text-center shadow-lg">
+                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
+                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Access Restricted</h3>
+                <p class="text-blue-700 text-lg">You don't have permission to view projects.</p>
+                <p class="text-gray-600 text-sm mt-2">Contact your administrator to request access.</p>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
-
-<?php if ($canSeeProjects): ?>
-    <!-- Only admin/super/instructor see projects section -->
-    <div class="flex items-center justify-between mb-4">
-        <h2 class="text-2xl font-bold text-gray-800">Projects</h2>
-
-        <button id="openCreateProjectBtn"
-            class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-            + Project
-        </button>
-    </div>
-
-    <?php require __DIR__ . '/../components/projectTable.php'; ?>
-    <?php require __DIR__ . '/../components/project-modal.php'; ?>
-    <?php require __DIR__ . '/../../pages/components/deleteModal.php'; ?>
-
-<?php else: ?>
-    <!-- Member: hide project UI -->
-    <div class="bg-blue-50 border border-blue-200 text-blue-700 p-4 rounded-xl">
-        You don’t have permission to view projects.
-    </div>
-<?php endif; ?>
 
 <?php require_once __DIR__ . '/../../includes/layouts/app-footer.php'; ?>

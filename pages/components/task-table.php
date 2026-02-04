@@ -41,7 +41,7 @@
                     <th class="px-6 py-3.5 text-right">Actions</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
+            <tbody id="tasksTableBody" class="divide-y divide-gray-100">
                 <?php if (empty($tasks)): ?>
                     <tr>
                         <td colspan="9" class="px-6 py-12 text-center">
@@ -69,7 +69,7 @@
                         ];
                         $priorityClass = $priorityColors[$priority] ?? $priorityColors['medium'];
                         ?>
-                        <tr class="hover:bg-indigo-50/50 transition-colors">
+                        <tr class="taskRow hover:bg-indigo-50/50 transition-colors">
                             <td class="px-6 py-4">
                                 <div class="flex items-start gap-3">
                                     <div class="min-w-0">
@@ -248,4 +248,20 @@
             </tbody>
         </table>
     </div>
+
+    <div class="px-6 py-4 border-t border-gray-100">
+        <div id="tasksPagination" class="flex gap-2 flex-wrap"></div>
+    </div>
 </div>
+
+<script>
+    $(function() {
+        Paginator({
+            itemsSelector: "#tasksTableBody tr.taskRow",
+            paginationSelector: "#tasksPagination",
+            itemsPerPage: 5
+        });
+
+        $("#tasksTableBody").removeClass("invisible");
+    });
+</script>

@@ -9,8 +9,8 @@
         <!-- Header -->
         <div class="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
             <div>
-                <h2 class="text-2xl font-bold text-gray-800">Create Team</h2>
-                <p class="text-sm text-gray-500 mt-1">Fill in the information below</p>
+                <h2 class="text-2xl font-bold text-gray-800" id="teamModalTitle">Create Team</h2>
+                <p class="text-sm text-gray-500 mt-1" id="teamModalSubtitle">Fill in the information below</p>
             </div>
 
             <button type="button" id="btnCloseCreateTeam"
@@ -24,6 +24,7 @@
         <!-- Form -->
         <form id="createTeamForm" class="p-6">
             <input type="hidden" name="csrf" value="<?= e($token) ?>">
+            <input type="hidden" name="team_id" id="team_id" value="">
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
 
@@ -173,23 +174,6 @@
 </div>
 
 <style>
-    /* Smooth modal animation like project */
-    #createTeamModal.flex #createTeamModalContent {
-        animation: teamModalSlideIn 0.3s ease-out forwards;
-    }
-
-    @keyframes teamModalSlideIn {
-        from {
-            opacity: 0;
-            transform: scale(0.95) translateY(-20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-    }
-
     /* Custom scrollbar */
     #createTeamModalContent::-webkit-scrollbar {
         width: 8px;
