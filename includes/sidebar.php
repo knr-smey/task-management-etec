@@ -124,7 +124,7 @@ require_once __DIR__ . '/helpers.php';
         </a> -->
 
         <!-- Divider -->
-        <div class="border-t border-blue-800 my-3"></div>
+        <!-- <div class="border-t border-blue-800 my-3"></div> -->
 
         <!-- Admin Section -->
         <?php if (!empty($user['roles'])): ?>
