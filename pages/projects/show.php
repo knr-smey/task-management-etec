@@ -9,7 +9,7 @@ require __DIR__ . '/../../includes/auth.php';
 require_once __DIR__ . '/../../includes/layouts/app.php';
 ?>
 
-<div class="max-w-7xl mx-auto">
+<div>
 
     <?php require __DIR__ . '/../components/project-info.php'; ?>
 
@@ -172,6 +172,68 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
             } else {
                 alert("Coming soon");
             }
+        });
+
+        const $logTimeModal = $("#logTimeModal");
+        const $logTimeForm = $("#logTimeForm");
+        const $logTimeTaskId = $("#logTimeTaskId");
+        const $logTimeHours = $("#logTimeHours");
+
+        const openLogTimeModal = (taskId) => {
+            $logTimeTaskId.val(taskId);
+            $logTimeHours.val("");
+            $logTimeModal.removeClass("hidden").addClass("flex");
+        };
+
+        const closeLogTimeModal = () => {
+            $logTimeModal.addClass("hidden").removeClass("flex");
+        };
+
+        $(document).on("click", ".menu-log-time", function() {
+            const $menu = $(this).closest(".taskActionMenu");
+            const taskId = $menu.siblings(".taskActionToggle").data("task-id");
+            closeMenu($menu);
+            openLogTimeModal(taskId);
+        });
+
+        $(document).on("click", "#closeLogTimeBtn, #cancelLogTimeBtn", function() {
+            closeLogTimeModal();
+        });
+
+        $logTimeForm.on("submit", function(e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: "<?= e(BASE_URL) ?>task/log-time",
+                type: "POST",
+                data: $logTimeForm.serialize(),
+                dataType: "json",
+                success: function(res) {
+                    if (res.status) {
+                        closeLogTimeModal();
+                        if (window.Swal) {
+                            Swal.fire("Success", res.message || "Time logged", "success").then(() => location.reload());
+                        } else {
+                            alert(res.message || "Time logged");
+                            location.reload();
+                        }
+                    } else {
+                        if (window.Swal) {
+                            Swal.fire("Error", res.message || "Log time failed", "error");
+                        } else {
+                            alert(res.message || "Log time failed");
+                        }
+                    }
+                },
+                error: function(xhr) {
+                    const res = xhr.responseJSON;
+                    if (window.Swal) {
+                        Swal.fire("Error", (res && res.message) || "Server error", "error");
+                    } else {
+                        alert((res && res.message) || "Server error");
+                    }
+                }
+            });
         });
 
         $(document).on("click", ".assign-member", function() {

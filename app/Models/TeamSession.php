@@ -29,12 +29,18 @@ class TeamSession
                 t.name          AS team_name,
                 t.team_type,
                 t.created_at,
+                COALESCE(mc.member_count, 0) AS member_count,
 
                 ts.id           AS session_id,
                 ts.day_of_week,
                 ts.start_time,
                 ts.end_time
             FROM teams t
+            LEFT JOIN (
+                SELECT team_id, COUNT(*) AS member_count
+                FROM team_members
+                GROUP BY team_id
+            ) mc ON mc.team_id = t.id
             LEFT JOIN team_sessions ts
                 ON ts.team_id = t.id
             WHERE t.created_by = ?
@@ -60,6 +66,7 @@ class TeamSession
                 t.name          AS team_name,
                 t.team_type,
                 t.created_at,
+                COALESCE(mc.member_count, 0) AS member_count,
 
                 ts.id           AS session_id,
                 ts.day_of_week,
@@ -68,6 +75,11 @@ class TeamSession
             FROM teams t
             INNER JOIN team_members tm
                 ON tm.team_id = t.id AND tm.member_id = ?
+            LEFT JOIN (
+                SELECT team_id, COUNT(*) AS member_count
+                FROM team_members
+                GROUP BY team_id
+            ) mc ON mc.team_id = t.id
             LEFT JOIN team_sessions ts
                 ON ts.team_id = t.id
             ORDER BY

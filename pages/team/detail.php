@@ -10,7 +10,7 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
 ?>
 
 <div class="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-    <div class="max-w-7xl mx-auto">
+    <div>
 
         <?php require_once __DIR__ . '/../components/team-header.php'; ?>
 

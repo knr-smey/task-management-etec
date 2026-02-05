@@ -169,6 +169,22 @@ class Task
     }
 
     /**
+     * Update estimate hours only
+     */
+    public static function updateEstimateHours(int $taskId, float $hours): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("\n            UPDATE tasks SET\n                estimate_hours = ?,\n                updated_at = NOW()\n            WHERE id = ?\n            LIMIT 1\n        ");
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param('di', $hours, $taskId);
+        return $stmt->execute();
+    }
+
+    /**
      * Delete task
      */
     public static function delete(int $taskId): bool

@@ -328,4 +328,48 @@ class TaskController
 
         ResponseService::json(false, 'Update failed', [], 500);
     }
+
+    /**
+     * API: log time (update estimate_hours)
+     */
+    public static function logTime(): void
+    {
+        $user = self::authorizeAny();
+
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+        }
+
+        $taskId = (int)($_POST['task_id'] ?? 0);
+        if ($taskId <= 0) {
+            ResponseService::json(false, 'Task ID is required', [], 422);
+        }
+
+        $hoursRaw = $_POST['estimate_hours'] ?? null;
+        if ($hoursRaw === null || $hoursRaw === '') {
+            ResponseService::json(false, 'Hours worked is required', [], 422);
+        }
+
+        $hours = filter_var($hoursRaw, FILTER_VALIDATE_FLOAT);
+        if ($hours === false || $hours < 0) {
+            ResponseService::json(false, 'Hours worked must be a valid number', [], 422);
+        }
+
+        $task = Task::find($taskId);
+        if (!$task) {
+            ResponseService::json(false, 'Task not found', [], 404);
+        }
+
+        $project = Project::findWithTeam((int)$task['project_id'], (int)$user['id']);
+        if (!$project) {
+            ResponseService::json(false, 'Forbidden', [], 403);
+        }
+
+        $ok = Task::updateEstimateHours($taskId, (float)$hours);
+        if ($ok) {
+            ResponseService::json(true, 'Time logged');
+        }
+
+        ResponseService::json(false, 'Log time failed', [], 500);
+    }
 }

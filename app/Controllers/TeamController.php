@@ -66,6 +66,7 @@ class TeamController
                     'name'       => $row['team_name'],
                     'team_type'  => $row['team_type'],
                     'created_at' => $row['created_at'],
+                    'member_count' => (int)($row['member_count'] ?? 0),
                     'sessions'   => [],
                 ];
             }

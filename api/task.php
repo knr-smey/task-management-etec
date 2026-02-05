@@ -53,4 +53,10 @@ if ($route === 'status' && $method === 'POST') {
 	exit;
 }
 
+// API: log time
+if ($route === 'log-time' && $method === 'POST') {
+	TaskController::logTime();
+	exit;
+}
+
 ResponseService::json(false, 'Not found', [], 404);

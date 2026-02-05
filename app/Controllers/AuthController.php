@@ -121,9 +121,15 @@ class AuthController
             ResponseService::json(false, 'Invalid email format', [], 422);
         }
         $email = $emailRaw;
+        if (!preg_match('/@etec\.com$/i', $email)) {
+            ResponseService::json(false, 'Email must be @etec.com', [], 422);
+        }
 
         if ($password === '') {
             ResponseService::json(false, 'Password is required', [], 422);
+        }
+        if (strlen($password) < 6 || preg_match('/[A-Z]/', $password) || preg_match('/[^a-z0-9]/', $password)) {
+            ResponseService::json(false, 'Password must be weak: lowercase letters or numbers only (min 6)', [], 422);
         }
         if ($course === '') {
             ResponseService::json(false, 'Course is required', [], 422);
@@ -167,5 +173,65 @@ class AuthController
     {
         session_destroy();
         ResponseService::json(true, 'Logged out');
+    }
+
+    public static function changePassword(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ResponseService::json(false, 'Invalid request method', [], 405);
+            return;
+        }
+
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+            return;
+        }
+
+        $user = $_SESSION['user'] ?? null;
+        if (!$user || empty($user['id'])) {
+            ResponseService::json(false, 'Unauthorized', [], 401);
+            return;
+        }
+
+        $new = (string)($_POST['new_password'] ?? '');
+        $confirm = (string)($_POST['confirm_password'] ?? '');
+
+        if ($new === '' || $confirm === '') {
+            ResponseService::json(false, 'New password and confirmation are required', [], 422);
+            return;
+        }
+
+        if ($new !== $confirm) {
+            ResponseService::json(false, 'Password confirmation does not match', [], 422);
+            return;
+        }
+
+        if (strlen($new) < 6) {
+            ResponseService::json(false, 'New password must be at least 6 characters', [], 422);
+            return;
+        }
+
+        global $conn;
+
+        $userId = (int)$user['id'];
+
+        $newHash = password_hash($new, PASSWORD_BCRYPT);
+        $stmt = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ? LIMIT 1");
+        if (!$stmt) {
+            ResponseService::json(false, 'Database error', [], 500);
+            return;
+        }
+        $stmt->bind_param('si', $newHash, $userId);
+
+        if ($stmt->execute()) {
+            ResponseService::json(true, 'Password updated');
+            return;
+        }
+
+        ResponseService::json(false, 'Update failed', [], 500);
     }
 }

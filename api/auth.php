@@ -27,5 +27,10 @@ if ($route === 'api/auth/logout') {
     exit;
 }
 
+if ($route === 'api/auth/change-password') {
+    AuthController::changePassword();
+    exit;
+}
+
 // fallback
 ResponseService::json(false, 'Not found', [], 404);

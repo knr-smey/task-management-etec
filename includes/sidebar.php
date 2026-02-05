@@ -18,6 +18,7 @@ require_once __DIR__ . '/helpers.php';
             opacity: 0;
             transform: translateY(10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -27,6 +28,37 @@ require_once __DIR__ . '/helpers.php';
     .menu-item {
         animation: fadeIn 0.4s ease-out forwards;
     }
+
+    @keyframes modalFadeIn {
+        from {
+            opacity: 0;
+        }
+
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    #logoutModal:not(.hidden) {
+        animation: modalFadeIn 0.2s ease-out;
+    }
+
+    #logoutModal:not(.hidden)>div {
+        animation: modalSlideIn 0.3s ease-out;
+    }
+
 </style>
 
 <aside class="w-64 bg-blue-950 text-white fixed top-16 left-0 h-[calc(100vh-4rem)] shadow-xl overflow-y-auto">
@@ -94,7 +126,7 @@ require_once __DIR__ . '/helpers.php';
             <span class="font-medium">Task</span>
         </a> -->
 
-       
+
         <!-- Boards -->
         <!-- <a href="<?= e(BASE_URL) ?>boards"
             class="sidebar-item menu-item flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200
@@ -169,22 +201,61 @@ require_once __DIR__ . '/helpers.php';
 </aside>
 
 <div id="logoutModal"
-     class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-slate-900/50 backdrop-blur-sm">
-    <div class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-slate-200" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
-        <div class="flex items-center justify-between p-5 border-b border-slate-200">
-            <h2 id="logoutTitle" class="text-lg font-semibold text-slate-900">Confirm Logout</h2>
-            <button type="button" id="closeLogoutModal" class="text-slate-400 hover:text-slate-600" aria-label="Close">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    class="fixed inset-0 z-[9999] hidden flex items-center justify-center bg-gradient-to-br from-slate-900/60 via-blue-900/40 to-slate-900/60 backdrop-blur-md">
+    <div class="w-full max-w-md mx-4 rounded-2xl bg-white shadow-2xl border border-slate-200 overflow-hidden" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+
+        <!-- Icon Header with Gradient -->
+        <div class="relative bg-gradient-to-br from-red-500 to-red-600 px-6 py-8 text-center">
+            <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjIwIiBoZWlnaHQ9IjIwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDIwIDAgTCAwIDAgMCAyMCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-20"></div>
+
+            <div class="relative">
+                <!-- Animated Icon Container -->
+                <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4 relative">
+                    <!-- Logout Icon -->
+                    <svg class="w-10 h-10 text-red-500 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                    </svg>
+                </div>
+
+                <h2 id="logoutTitle" class="text-2xl font-bold text-white mb-1">Confirm Logout</h2>
+                <p class="text-red-100 text-sm">You're about to end your session</p>
+            </div>
+
+            <!-- Close Button -->
+            <button type="button" id="closeLogoutModal" class="absolute top-4 right-4 text-white/80 hover:text-white transition-colors" aria-label="Close">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
             </button>
         </div>
-        <div class="p-5 text-sm text-slate-600">
-            Are you sure you want to logout?
+
+        <!-- Content -->
+        <div class="px-6 py-6">
+            <div class="flex items-start gap-3 mb-6">
+                <div class="flex-shrink-0 w-10 h-10 bg-amber-50 rounded-full flex items-center justify-center">
+                    <svg class="w-5 h-5 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-semibold text-slate-800 mb-1">Are you sure?</h3>
+                    <p class="text-sm text-slate-600">You'll need to sign in again to access your account.</p>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <button type="button" id="cancelLogout"
+                    class="flex-1 rounded-xl border-2 border-slate-200 px-4 py-3 text-slate-700 font-semibold hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 hover:shadow-md">
+                    Cancel
+                </button>
+                <a href="<?= e(BASE_URL) ?>logout"
+                    class="flex-1 rounded-xl bg-gradient-to-r from-red-500 to-red-600 px-4 py-3 text-center font-semibold text-white hover:from-red-600 hover:to-red-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-[1.02]">
+                    Yes, Logout
+                </a>
+            </div>
         </div>
-        <div class="flex gap-3 px-5 pb-5">
-            <button type="button" id="cancelLogout" class="flex-1 rounded-lg border border-slate-200 px-4 py-2 text-slate-700 font-semibold hover:bg-slate-50">Cancel</button>
-            <a href="<?= e(BASE_URL) ?>logout" class="flex-1 rounded-lg bg-red-500 px-4 py-2 text-center font-semibold text-white hover:bg-red-600">Logout</a>
-        </div>
+
     </div>
 </div>

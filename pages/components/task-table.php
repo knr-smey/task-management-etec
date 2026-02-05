@@ -36,6 +36,7 @@
                     <th class="px-6 py-3.5">Priority</th>
                     <th class="px-6 py-3.5">Assign</th>
                     <th class="px-6 py-3.5">Due Date</th>
+                    <th class="px-6 py-3.5">Log Time (hrs)</th>
                     <th class="px-6 py-3.5">Created By</th>
                     <th class="px-6 py-3.5">Created</th>
                     <th class="px-6 py-3.5 text-right">Actions</th>
@@ -110,6 +111,13 @@
                                     <span class="text-sm text-gray-400">-</span>
                                 <?php endif; ?>
                             </td>
+                            <td class="px-6 py-4">
+                                <?php if ($t['estimate_hours'] !== null && $t['estimate_hours'] !== ''): ?>
+                                    <span class="text-sm font-medium text-gray-800"><?= e((string)$t['estimate_hours']) ?></span>
+                                <?php else: ?>
+                                    <span class="text-sm text-gray-400">No-Log</span>
+                                <?php endif; ?>
+                            </td>
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 <?= e($t['creator_name'] ?? '-') ?>
                             </td>
@@ -169,6 +177,18 @@
                                                     <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                                     </svg>
+                                                </button>
+
+                                                <button class="menu-log-time group w-full text-left px-4 py-3 text-sm hover:bg-amber-50 transition-colors flex items-center gap-3">
+                                                    <div class="w-9 h-9 rounded-lg bg-amber-100 group-hover:bg-amber-200 flex items-center justify-center transition-colors">
+                                                        <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flex-1 text-left">
+                                                        <div class="font-medium text-gray-900">Log Time</div>
+                                                        <div class="text-xs text-gray-500">Add hours worked</div>
+                                                    </div>
                                                 </button>
 
                                                 <div class="border-t border-gray-100 my-2"></div>
@@ -251,6 +271,48 @@
 
     <div class="px-6 py-4 border-t border-gray-100">
         <div id="tasksPagination" class="flex gap-2 flex-wrap"></div>
+    </div>
+</div>
+
+<!-- Log Time Modal -->
+<div id="logTimeModal" class="fixed bg-black/50 backdrop-blur-sm inset-0 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+        <div class="flex items-center justify-between p-5 border-b">
+            <div>
+                <h3 class="text-lg font-bold text-gray-800">Log Time</h3>
+                <p class="text-sm text-gray-500">Add hours worked for this task</p>
+            </div>
+            <button type="button" id="closeLogTimeBtn" class="text-gray-400 hover:text-gray-600">✕</button>
+        </div>
+
+        <form id="logTimeForm" class="p-5 space-y-4">
+            <input type="hidden" name="csrf" value="<?= e($token) ?>">
+            <input type="hidden" name="task_id" id="logTimeTaskId" value="">
+
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Hours Worked</label>
+                <input
+                    id="logTimeHours"
+                    type="number"
+                    name="estimate_hours"
+                    min="0"
+                    step="0.25"
+                    placeholder="e.g. 2.5"
+                    required
+                    class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500 outline-none">
+            </div>
+
+            <div class="flex gap-3 pt-2">
+                <button type="button" id="cancelLogTimeBtn"
+                    class="flex-1 px-4 py-2 border rounded-lg hover:bg-gray-50">
+                    Cancel
+                </button>
+                <button type="submit"
+                    class="flex-1 px-4 py-2 rounded-lg bg-amber-600 text-white hover:bg-amber-700">
+                    Save Time
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 

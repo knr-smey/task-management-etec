@@ -21,13 +21,21 @@
                         <h3 class="text-xl font-bold text-gray-900 mb-3 truncate group-hover:text-blue-600 transition-colors">
                             <?= e($team['name']) ?>
                         </h3>
-                        <span
-                            class="inline-flex items-center gap-1.5 text-sm font-medium capitalize bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
-                            </svg>
-                            <?= e($team['team_type']) ?>
-                        </span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span
+                                class="inline-flex items-center gap-1.5 text-sm font-medium capitalize bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                                </svg>
+                                <?= e($team['team_type']) ?>
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 text-sm font-medium bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M13 7a3 3 0 11-6 0 3 3 0 016 0zM6 14a4 4 0 018 0v1H6v-1z" />
+                                </svg>
+                                <?= (int)($team['member_count'] ?? 0) ?> Members
+                            </span>
+                        </div>
                     </div>
 
                     <!-- Action dropdown -->

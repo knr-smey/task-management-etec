@@ -186,7 +186,7 @@ if ($currentProjectId > 0 && !empty($navbarProjects)) {
         <?php endforeach; ?>
 
         <!-- Avatar -->
-        <div class="relative group">
+        <a href="<?= e(BASE_URL) ?>profile" class="relative group" aria-label="Profile">
             <div
                 class="w-11 h-11 avatar-gradient rounded-xl flex items-center justify-center
                        font-bold text-sm cursor-pointer transition-all duration-200 
@@ -194,7 +194,7 @@ if ($currentProjectId > 0 && !empty($navbarProjects)) {
                 <?= strtoupper(substr($user['name'] ?? 'NS', 0, 2)) ?>
             </div>
             <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-2 border-blue-900"></div>
-        </div>
+        </a>
     </div>
 </nav>
 

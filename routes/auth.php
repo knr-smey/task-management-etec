@@ -5,10 +5,12 @@
     'register' => 'pages/auth/register.php',
     'logout' => 'pages/auth/logout.php',
     'dashboard' => 'api/dashboard.php',
+    'profile' => 'api/profile.php',
 
     'api/auth/login' => 'api/auth.php',
     'api/auth/register' => 'api/auth.php',
     'api/auth/logout' => 'api/auth.php',
+    'api/auth/change-password' => 'api/auth.php',
 
     'team/join'         => 'api/team.php',
     'team/join-confirm' => 'api/team.php',
@@ -19,4 +21,5 @@
     'task/delete' => 'api/task.php',
     'task/assign' => 'api/task.php',
     'task/status' => 'api/task.php',
+    'task/log-time' => 'api/task.php',
 ];

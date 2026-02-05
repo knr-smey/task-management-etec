@@ -19,6 +19,22 @@ class User
         return $isActive === self::ACTIVE ? 'Active' : 'Inactive';
     }
 
+    public static function findById(int $id): ?array
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("SELECT id, name, email, course, is_active FROM users WHERE id = ? LIMIT 1");
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+
+        $row = $stmt->get_result()->fetch_assoc();
+        return $row ?: null;
+    }
+
     public static function all(array $currentUser = []): array
     {
         global $conn;
