@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../Models/Task.php';
 require_once __DIR__ . '/../Models/Project.php';
 require_once __DIR__ . '/../Models/TaskStatus.php';
+require_once __DIR__ . '/../Models/ActivityLog.php';
 require_once __DIR__ . '/../Services/ResponseService.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 
@@ -143,6 +144,22 @@ class TaskController
         if ($newId > 0) {
             $finalAssigneeId = $assigneeId > 0 ? $assigneeId : (int)$user['id'];
             Task::assignSingle($newId, $finalAssigneeId, (int)$user['id']);
+            ActivityLog::record(
+                (int)$user['id'],
+                'task',
+                $newId,
+                'created',
+                null,
+                [
+                    'title' => $title,
+                    'project_id' => $projectId,
+                    'status_id' => (int)$data['status_id'],
+                    'priority' => (string)$data['priority'],
+                    'estimate_hours' => $data['estimate_hours'],
+                    'due_date' => $data['due_date'],
+                    'assignee_id' => $finalAssigneeId,
+                ]
+            );
             ResponseService::json(true, 'Task created', ['id' => $newId]);
         }
 
@@ -195,6 +212,28 @@ class TaskController
 
         $ok = Task::update($taskId, $data);
         if ($ok) {
+            ActivityLog::record(
+                (int)$user['id'],
+                'task',
+                $taskId,
+                'updated',
+                [
+                    'title' => $task['title'],
+                    'description' => $task['description'] ?? null,
+                    'status_id' => (int)$task['status_id'],
+                    'priority' => $task['priority'] ?? 'medium',
+                    'estimate_hours' => $task['estimate_hours'] ?? null,
+                    'due_date' => $task['due_date'] ?? null,
+                ],
+                [
+                    'title' => $data['title'],
+                    'description' => $data['description'] ?? null,
+                    'status_id' => (int)$data['status_id'],
+                    'priority' => (string)$data['priority'],
+                    'estimate_hours' => $data['estimate_hours'] ?? null,
+                    'due_date' => $data['due_date'] ?? null,
+                ]
+            );
             ResponseService::json(true, 'Task updated');
         }
 
@@ -230,6 +269,19 @@ class TaskController
         if (!self::canManageTask($user, $task)) {
             ResponseService::json(false, 'Forbidden', [], 403);
         }
+
+        ActivityLog::record(
+            (int)$user['id'],
+            'task',
+            $taskId,
+            'deleted',
+            [
+                'title' => $task['title'],
+                'project_id' => (int)$task['project_id'],
+                'status_id' => (int)$task['status_id'],
+            ],
+            null
+        );
 
         $ok = Task::delete($taskId);
         if ($ok) {
@@ -276,6 +328,16 @@ class TaskController
 
         $ok = Task::assignSingle($taskId, $assigneeId, (int)$user['id']);
         if ($ok) {
+            ActivityLog::record(
+                (int)$user['id'],
+                'task',
+                $taskId,
+                'assigned',
+                null,
+                [
+                    'assignee_id' => $assigneeId,
+                ]
+            );
             ResponseService::json(true, 'Task assigned');
         }
 
@@ -323,6 +385,18 @@ class TaskController
             'due_date'       => $task['due_date'] ?? null,
         ]);
         if ($ok) {
+            ActivityLog::record(
+                (int)$user['id'],
+                'task',
+                (int)$task['id'],
+                'status_changed',
+                [
+                    'status_id' => (int)$task['status_id'],
+                ],
+                [
+                    'status_id' => $statusId,
+                ]
+            );
             ResponseService::json(true, 'Status updated');
         }
 
@@ -367,6 +441,18 @@ class TaskController
 
         $ok = Task::updateEstimateHours($taskId, (float)$hours);
         if ($ok) {
+            ActivityLog::record(
+                (int)$user['id'],
+                'task',
+                $taskId,
+                'time_logged',
+                [
+                    'estimate_hours' => $task['estimate_hours'] ?? null,
+                ],
+                [
+                    'estimate_hours' => (float)$hours,
+                ]
+            );
             ResponseService::json(true, 'Time logged');
         }
 

@@ -6,6 +6,7 @@
     'logout' => 'pages/auth/logout.php',
     'dashboard' => 'api/dashboard.php',
     'profile' => 'api/profile.php',
+    'activity' => 'api/activity.php',
 
     'api/auth/login' => 'api/auth.php',
     'api/auth/register' => 'api/auth.php',

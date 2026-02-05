@@ -191,6 +191,32 @@ class Project
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
     }
 
+    public static function allForUser(int $userId): array
+    {
+        global $conn;
+
+        $stmt = $conn->prepare(
+            "SELECT DISTINCT p.id, p.name, p.status, p.created_at
+            FROM projects p
+            LEFT JOIN project_members pm ON pm.project_id = p.id
+            LEFT JOIN teams t ON t.id = p.team_id
+            LEFT JOIN team_members tm ON tm.team_id = t.id
+            WHERE p.created_by = ?
+               OR pm.user_id = ?
+               OR tm.member_id = ?
+            ORDER BY p.created_at DESC"
+        );
+
+        if (!$stmt) {
+            return [];
+        }
+
+        $stmt->bind_param('iii', $userId, $userId, $userId);
+        $stmt->execute();
+
+        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
+    }
+
     public static function unassignTeam(int $projectId): bool
     {
         global $conn;

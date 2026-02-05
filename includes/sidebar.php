@@ -99,7 +99,7 @@ require_once __DIR__ . '/helpers.php';
 
 
         <!-- Activity -->
-        <!-- <a href="<?= e(BASE_URL) ?>activity"
+        <a href="<?= e(BASE_URL) ?>activity"
             class="sidebar-item menu-item flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200
            <?= isActive('/activity')
                 ? 'bg-blue-900 text-white shadow-lg font-semibold border border-blue-700'
@@ -110,7 +110,7 @@ require_once __DIR__ . '/helpers.php';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
             </svg>
             <span class="font-medium">Activity</span>
-        </a> -->
+        </a>
 
         <!-- Task -->
         <!-- <a href="<?= e(BASE_URL) ?>task"
