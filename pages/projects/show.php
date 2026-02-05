@@ -40,13 +40,20 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
         });
 
         const $taskModal = $("#createTaskModal");
+        const $taskModalContent = $("#createTaskModalContent");
 
         $("#openCreateTaskBtn").on("click", function() {
             $taskModal.removeClass("hidden").addClass("flex");
+            requestAnimationFrame(() => {
+                $taskModalContent.removeClass("scale-95 opacity-0").addClass("scale-100 opacity-100");
+            });
         });
 
         $("#closeCreateTaskBtn, #cancelCreateTaskBtn").on("click", function() {
-            $taskModal.addClass("hidden").removeClass("flex");
+            $taskModalContent.addClass("scale-95 opacity-0").removeClass("scale-100 opacity-100");
+            setTimeout(() => {
+                $taskModal.addClass("hidden").removeClass("flex");
+            }, 200);
         });
 
         $("#createTaskForm").on("submit", function(e) {
@@ -59,7 +66,10 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
                 dataType: "json",
                 success: function(res) {
                     if (res.status) {
-                        $taskModal.addClass("hidden").removeClass("flex");
+                        $taskModalContent.addClass("scale-95 opacity-0").removeClass("scale-100 opacity-100");
+                        setTimeout(() => {
+                            $taskModal.addClass("hidden").removeClass("flex");
+                        }, 200);
                         if (window.Swal) {
                             Swal.fire("Success", "Task created", "success").then(() => location.reload());
                         } else {
