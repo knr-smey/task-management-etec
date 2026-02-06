@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-require __DIR__ . '/../config/app.php';
-require __DIR__ . '/../includes/helpers.php';
-require __DIR__ . '/../includes/auth.php';
-require_once __DIR__ . '/../includes/layouts/app.php';
+require __DIR__ . '/../../config/app.php';
+require __DIR__ . '/../../includes/helpers.php';
+require __DIR__ . '/../../includes/auth.php';
+require_once __DIR__ . '/../../includes/layouts/app.php';
 
 $selectedProjectId = $selectedProjectId ?? 0;
 $projects = $projects ?? [];
@@ -21,6 +21,7 @@ $actionLabels = [
     'time_logged' => 'Logged time',
     'project_created' => 'Created project',
     'project_updated' => 'Updated project',
+    'closed' => 'Closed task',
 ];
 ?>
 
@@ -123,4 +124,4 @@ $actionLabels = [
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../includes/layouts/app-footer.php'; ?>
+<?php require_once __DIR__ . '/../../includes/layouts/app-footer.php'; ?>

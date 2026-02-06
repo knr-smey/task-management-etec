@@ -150,7 +150,8 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
             const target = $(this).data("menu");
             const $menu = $(this).closest(".taskActionMenu");
 
-            $menu.find(".menu-main").addClass("hidden");
+            $menu.find(".menu-main").removeClass("hidden");
+            $menu.find(".menu-assign, .menu-status").addClass("hidden");
             $menu.find(`.menu-${target}`).removeClass("hidden");
         });
 
@@ -204,6 +205,57 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
             const taskId = $menu.siblings(".taskActionToggle").data("task-id");
             closeMenu($menu);
             openLogTimeModal(taskId);
+        });
+
+        $(document).on("click", ".menu-close-task", function() {
+            const $menu = $(this).closest(".taskActionMenu");
+            const taskId = $menu.siblings(".taskActionToggle").data("task-id");
+            closeMenu($menu);
+
+            const submitClose = () => {
+                $.ajax({
+                    url: "<?= e(BASE_URL) ?>task/close",
+                    type: "POST",
+                    data: {
+                        csrf: "<?= e($token) ?>",
+                        task_id: taskId
+                    },
+                    dataType: "json",
+                    success: function(res) {
+                        if (res.status) {
+                            location.reload();
+                        } else if (window.Swal) {
+                            Swal.fire("Error", res.message || "Close failed", "error");
+                        } else {
+                            alert(res.message || "Close failed");
+                        }
+                    },
+                    error: function() {
+                        if (window.Swal) {
+                            Swal.fire("Error", "Server error", "error");
+                        } else {
+                            alert("Server error");
+                        }
+                    }
+                });
+            };
+
+            if (window.Swal) {
+                Swal.fire({
+                    title: "Close task?",
+                    text: "This will mark the task as done.",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, close it",
+                    cancelButtonText: "Cancel"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        submitClose();
+                    }
+                });
+            } else if (confirm("Close this task?")) {
+                submitClose();
+            }
         });
 
         $(document).on("click", "#closeLogTimeBtn, #cancelLogTimeBtn", function() {

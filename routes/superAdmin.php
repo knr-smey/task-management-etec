@@ -23,4 +23,5 @@ return [
     'task/create' => 'api/task.php',
     'task/update' => 'api/task.php',
     'task/delete' => 'api/task.php',
+    'task/close'  => 'api/task.php',
 ];

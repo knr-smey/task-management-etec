@@ -37,6 +37,6 @@ class ActivityController
             }
         }
 
-        require __DIR__ . '/../../pages/activity.php';
+        require __DIR__ . '/../../pages/activity/index.php';
     }
 }

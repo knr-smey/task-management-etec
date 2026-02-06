@@ -404,6 +404,65 @@ class TaskController
     }
 
     /**
+     * API: close task (sets status to done)
+     */
+    public static function closeTask(): void
+    {
+        $user = self::authorizeAny();
+
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+        }
+
+        $taskId = (int)($_POST['task_id'] ?? 0);
+        if ($taskId <= 0) {
+            ResponseService::json(false, 'Task ID is required', [], 422);
+        }
+
+        $task = Task::find($taskId);
+        if (!$task) {
+            ResponseService::json(false, 'Task not found', [], 404);
+        }
+
+        $project = Project::findWithTeam((int)$task['project_id'], (int)$user['id']);
+        if (!$project) {
+            ResponseService::json(false, 'Forbidden', [], 403);
+        }
+
+        $doneStatusId = TaskStatus::findIdByName('done');
+        if (!$doneStatusId) {
+            ResponseService::json(false, 'Done status not found', [], 422);
+        }
+
+        $ok = Task::update((int)$task['id'], [
+            'title'          => $task['title'],
+            'description'    => $task['description'] ?? null,
+            'status_id'      => $doneStatusId,
+            'priority'       => $task['priority'] ?? 'medium',
+            'estimate_hours' => $task['estimate_hours'] ?? null,
+            'due_date'       => $task['due_date'] ?? null,
+        ]);
+
+        if ($ok) {
+            ActivityLog::record(
+                (int)$user['id'],
+                'task',
+                (int)$task['id'],
+                'closed',
+                [
+                    'status_id' => (int)$task['status_id'],
+                ],
+                [
+                    'status_id' => $doneStatusId,
+                ]
+            );
+            ResponseService::json(true, 'Task closed');
+        }
+
+        ResponseService::json(false, 'Close failed', [], 500);
+    }
+
+    /**
      * API: log time (update estimate_hours)
      */
     public static function logTime(): void

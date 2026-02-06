@@ -53,6 +53,12 @@ if ($route === 'status' && $method === 'POST') {
 	exit;
 }
 
+// API: close task
+if ($route === 'close' && $method === 'POST') {
+	TaskController::closeTask();
+	exit;
+}
+
 // API: log time
 if ($route === 'log-time' && $method === 'POST') {
 	TaskController::logTime();

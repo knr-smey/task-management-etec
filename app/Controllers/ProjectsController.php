@@ -39,13 +39,10 @@ class ProjectsController
     // PAGE: show projects in dashboard (member cannot see)
     public static function index(): void
     {
-        $user = self::authorize();
+        self::authorize();
 
-        // only show projects created by himself
-        $projects = Project::allByCreator((int)$user['id']);
-        
-        // choose your page path (example)
-        require __DIR__ . '/../../pages/dashboard/index.php';
+        require_once __DIR__ . '/DashboardController.php';
+        DashboardController::index();
     }
     
 
@@ -145,8 +142,11 @@ class ProjectsController
         // assigned project members (checkbox checked)
         $assignedIds = Project::getAssignedMemberIds((int)$project['id']);
 
-        // tasks under project
-        $tasks = Task::allByProject((int)$project['id']);
+        // tasks under project (hide done tasks in table)
+        $tasks = array_values(array_filter(
+            Task::allByProject((int)$project['id']),
+            static fn(array $task): bool => strtolower((string)($task['status_name'] ?? '')) !== 'done'
+        ));
 
         // task statuses for actions
         $taskStatuses = TaskStatus::all();

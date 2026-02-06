@@ -13,7 +13,7 @@ require_once __DIR__ . '/helpers.php';
         transform: translateX(4px);
     }
 
-    @keyframes fadeIn {
+    /* @keyframes fadeIn {
         from {
             opacity: 0;
             transform: translateY(10px);
@@ -27,7 +27,7 @@ require_once __DIR__ . '/helpers.php';
 
     .menu-item {
         animation: fadeIn 0.4s ease-out forwards;
-    }
+    } */
 
     @keyframes modalFadeIn {
         from {
@@ -163,7 +163,7 @@ require_once __DIR__ . '/helpers.php';
             <?php foreach ($user['roles'] as $role): ?>
                 <?php if ($role !== 'member'): ?>
 
-                    <p class="text-xs uppercase tracking-wider text-blue-300 px-3 mb-2 font-semibold">
+                    <p class="mt-2 text-xs uppercase tracking-wider text-blue-300 px-3 mb-2 font-semibold">
                         Management
                     </p>
 

@@ -22,5 +22,6 @@
     'task/delete' => 'api/task.php',
     'task/assign' => 'api/task.php',
     'task/status' => 'api/task.php',
+    'task/close' => 'api/task.php',
     'task/log-time' => 'api/task.php',
 ];

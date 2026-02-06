@@ -1,4 +1,20 @@
 <!-- Tasks Section -->
+<style>
+    .taskActionMenu .menu-submenu {
+        position: absolute;
+        top: 0;
+        right: 100%;
+        margin-right: 8px;
+        width: 18rem;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.75rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+            0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        z-index: 60;
+    }
+</style>
 <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-visible">
     <!-- Tasks Header -->
     <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-slate-50">
@@ -69,6 +85,7 @@
                             'low' => 'bg-gray-100 text-gray-700 border-gray-200'
                         ];
                         $priorityClass = $priorityColors[$priority] ?? $priorityColors['medium'];
+                        $isDone = strtolower((string)($t['status_name'] ?? '')) === 'done';
                         ?>
                         <tr class="taskRow hover:bg-indigo-50/50 transition-colors">
                             <td class="px-6 py-4">
@@ -138,7 +155,7 @@
                                         </svg>
                                     </button>
 
-                                    <div class="taskActionMenu hidden absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden z-50 transform opacity-0 scale-95 transition-all duration-200">
+                                    <div class="taskActionMenu hidden absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-200 overflow-visible z-50 transform opacity-0 scale-95 transition-all duration-200">
                                         <!-- Main Menu -->
                                         <div class="menu-main">
                                             <!-- Header -->
@@ -179,6 +196,20 @@
                                                     </svg>
                                                 </button>
 
+                                                <?php if (!$isDone): ?>
+                                                    <button class="menu-close-task group w-full text-left px-4 py-3 text-sm hover:bg-emerald-50 transition-colors flex items-center gap-3">
+                                                        <div class="w-9 h-9 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 flex items-center justify-center transition-colors">
+                                                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                            </svg>
+                                                        </div>
+                                                        <div class="flex-1 text-left">
+                                                            <div class="font-medium text-gray-900">Close Task</div>
+                                                            <div class="text-xs text-gray-500">Mark as done</div>
+                                                        </div>
+                                                    </button>
+                                                <?php endif; ?>
+
                                                 <button class="menu-log-time group w-full text-left px-4 py-3 text-sm hover:bg-amber-50 transition-colors flex items-center gap-3">
                                                     <div class="w-9 h-9 rounded-lg bg-amber-100 group-hover:bg-amber-200 flex items-center justify-center transition-colors">
                                                         <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -208,7 +239,7 @@
                                         </div>
 
                                         <!-- Assign Submenu -->
-                                        <div class="menu-assign hidden">
+                                        <div class="menu-assign hidden menu-submenu">
                                             <!-- Header -->
                                             <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-indigo-50 flex items-start justify-between">
                                                 <button class="menu-back flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
@@ -241,7 +272,7 @@
                                         </div>
 
                                         <!-- Status Submenu -->
-                                        <div class="menu-status hidden">
+                                        <div class="menu-status hidden menu-submenu">
                                             <!-- Header -->
                                             <div class="px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-green-50 to-emerald-50 flex items-start justify-between">
                                                 <button class="menu-back flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">

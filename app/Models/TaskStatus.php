@@ -24,4 +24,20 @@ class TaskStatus
 
         return (bool)$stmt->get_result()->fetch_row();
     }
+
+    public static function findIdByName(string $name): ?int
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("SELECT id FROM task_statuses WHERE name = ? LIMIT 1");
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bind_param('s', $name);
+        $stmt->execute();
+
+        $row = $stmt->get_result()->fetch_assoc();
+        return $row ? (int)$row['id'] : null;
+    }
 }
