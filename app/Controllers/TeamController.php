@@ -486,6 +486,8 @@ class TeamController
             userHasRole($user, 'instructor')
         );
 
+        $canTrackAttendance = ($isOwner || $isMember);
+
         $assignableProjects = [];
         if ($isAdmin) {
             $assignableProjects = Project::allByCreator((int)$user['id']);

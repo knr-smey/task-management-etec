@@ -25,6 +25,11 @@ function accessing($message)
   <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css">
   <link rel="icon" href="<?= e(BASE_URL) ?>public/Image/KRUSolutionLogo.png">
 
+  <!-- Khmer font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bayon&display=swap" rel="stylesheet">
+
   <!-- Tailwind -->
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 

@@ -87,13 +87,32 @@ $token = csrf_token();
 
           <div>
             <label class="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
-            <input
-              name="password"
-              type="password"
-              required
-              placeholder="Enter your password"
-              class="w-full border-2 border-gray-200 rounded-lg px-3 py-2 text-sm
-               focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            <div class="relative">
+              <input
+                id="passwordInput"
+                name="password"
+                type="password"
+                required
+                placeholder="Enter your password"
+                class="w-full border-2 border-gray-200 rounded-lg px-3 py-2 pr-10 text-sm
+                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+              <button
+                id="togglePassword"
+                type="button"
+                aria-label="Show password"
+                class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-500 hover:text-blue-600">
+                <svg id="eyeOpenIcon" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M2 12s4-6 10-6 10 6 10 6-4 6-10 6-10-6-10-6z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+                <svg id="eyeClosedIcon" class="h-5 w-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <path d="M3 3l18 18" />
+                  <path d="M10.58 10.58A2 2 0 0012 14a2 2 0 001.42-.58" />
+                  <path d="M6.1 6.1C4 7.7 2.7 10 2 12c1.7 4 6 7 10 7 1.9 0 3.7-.6 5.2-1.6" />
+                  <path d="M9.9 4.6C10.6 4.4 11.3 4.3 12 4.3c4 0 8 2.6 10 7-0.6 1.4-1.5 2.7-2.6 3.8" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <!-- Alert -->
@@ -284,6 +303,19 @@ $token = csrf_token();
         setLoading(false);
       }
     });
+  });
+
+  const $passwordInput = $("#passwordInput");
+  const $togglePassword = $("#togglePassword");
+  const $eyeOpenIcon = $("#eyeOpenIcon");
+  const $eyeClosedIcon = $("#eyeClosedIcon");
+
+  $togglePassword.on("click", function() {
+    const isHidden = $passwordInput.attr("type") === "password";
+    $passwordInput.attr("type", isHidden ? "text" : "password");
+    $togglePassword.attr("aria-label", isHidden ? "Hide password" : "Show password");
+    $eyeOpenIcon.toggleClass("hidden", isHidden);
+    $eyeClosedIcon.toggleClass("hidden", !isHidden);
   });
 </script>
 

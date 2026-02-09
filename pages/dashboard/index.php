@@ -7,8 +7,13 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
 <div class="container mx-auto">
     <!-- Header Section -->
     <div class="mb-8">
-        <h1 class="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
-        <p class="text-gray-600">Welcome back, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>! Here's what's happening today.</p>
+        <?php if ($canSeeProjects): ?>
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Dashboard</h1>
+            <p class="text-gray-600">Welcome back, <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>! Here's what's happening today.</p>
+        <?php else: ?>
+            <h1 class="text-4xl font-semibold text-gray-800 mb-2 font-khmer">គ្រូ IT Solution សូមស្វាគមន៍មក</h1>
+            <p class="text-gray-600 font-khmer">សូមស្វាគមន៍​ <?php echo htmlspecialchars($user['name'] ?? 'User'); ?>! ឈប់នឹកគេនៅ ?</p>
+        <?php endif; ?>
     </div>
 
     <?php if ($canSeeProjects): ?>
@@ -89,17 +94,15 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
         <?php require __DIR__ . '/../../pages/components/deleteModal.php'; ?>
 
     <?php else: ?>
-        <!-- Member: hide project UI -->
+        <!-- Member: welcome card in Khmer -->
         <div>
-            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-2xl p-8 text-center shadow-lg">
-                <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                    <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                    </svg>
+            <div class="bg-gradient-to-r from-blue-50 to-blue-50 border-2 border-blue-200 rounded-2xl p-8 text-center shadow-lg">
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full mb-4 overflow-hidden ring-2 ring-emerald-200">
+                    <img src="<?= e(BASE_URL) ?>public/Image/iamgememe.png" alt="Member" class="w-full h-full object-cover">
                 </div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Access Restricted</h3>
-                <p class="text-blue-700 text-lg">You don't have permission to view projects.</p>
-                <p class="text-gray-600 text-sm mt-2">Contact your administrator to request access.</p>
+                <h3 class="text-2xl font-semibold text-gray-800 mb-2 font-khmer">នៅស្រលាញ់គេម្នាក់ឯងដល់ពេលណាទៀត!</h3>
+                <p class="text-emerald-700 text-lg font-khmer">ត្រូវចាំថាគេមិនមករកយើងវិញទេកាត់ចិត្តទៅគេមានសង្សារហើយខំរៀនរកលុយវិញ</p>
+                <p class="text-gray-600 text-sm mt-2 font-khmer">បើប្រាប់ហើយមិនស្ដាប់ទៀតអោយគេបោកតទៅហត់ណាស់ ​យល់ហេស?😒</p>
             </div>
         </div>
     <?php endif; ?>

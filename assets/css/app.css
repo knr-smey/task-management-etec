@@ -150,3 +150,7 @@
     font-size: 13px;
     color: #64748b;
 }
+
+.font-khmer {
+    font-family: "Bayon", "Noto Sans Khmer", sans-serif;
+}

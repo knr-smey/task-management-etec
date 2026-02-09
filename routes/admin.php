@@ -10,4 +10,5 @@ return [
     'create-project'  => 'api/project.php',
     'update-project'  => 'api/project.php',
     'delete-project'  => 'api/project.php',
+    'team/attendance' => 'api/attendance.php',
 ];
