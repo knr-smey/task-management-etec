@@ -127,6 +127,12 @@ $token = csrf_token();
           </button>
         </form>
 
+        <p class="text-center mt-3">
+          <a href="<?= e(BASE_URL) ?>forgot-password" class="text-sm text-blue-600 hover:text-blue-700 font-semibold hover:underline transition">
+            Forgot password?
+          </a>
+        </p>
+
         <!-- Divider -->
         <div class="relative my-4">
           <div class="absolute inset-0 flex items-center">

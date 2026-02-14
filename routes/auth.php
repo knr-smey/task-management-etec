@@ -2,6 +2,7 @@
     return[
     '' => 'pages/auth/login.php',
     'login' => 'pages/auth/login.php',
+    'forgot-password' => 'pages/auth/forgot-password.php',
     'register' => 'pages/auth/register.php',
     'logout' => 'pages/auth/logout.php',
     'dashboard' => 'api/dashboard.php',
@@ -12,6 +13,7 @@
     'api/auth/register' => 'api/auth.php',
     'api/auth/logout' => 'api/auth.php',
     'api/auth/change-password' => 'api/auth.php',
+    'api/auth/forgot-password' => 'api/auth.php',
 
     'team/join'         => 'api/team.php',
     'team/join-confirm' => 'api/team.php',

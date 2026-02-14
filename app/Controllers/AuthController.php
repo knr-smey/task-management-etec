@@ -234,4 +234,77 @@ class AuthController
 
         ResponseService::json(false, 'Update failed', [], 500);
     }
+
+    public static function forgotPassword(): void
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ResponseService::json(false, 'Invalid request method', [], 405);
+            return;
+        }
+
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+            return;
+        }
+
+        $email = trim((string)($_POST['email'] ?? ''));
+        $new = (string)($_POST['new_password'] ?? '');
+        $confirm = (string)($_POST['confirm_password'] ?? '');
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            ResponseService::json(false, 'Valid email is required', [], 422);
+            return;
+        }
+
+        if ($new === '' || $confirm === '') {
+            ResponseService::json(false, 'New password and confirmation are required', [], 422);
+            return;
+        }
+
+        if ($new !== $confirm) {
+            ResponseService::json(false, 'Password confirmation does not match', [], 422);
+            return;
+        }
+
+        if (strlen($new) < 6) {
+            ResponseService::json(false, 'New password must be at least 6 characters', [], 422);
+            return;
+        }
+
+        global $conn;
+
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? LIMIT 1");
+        if (!$stmt) {
+            ResponseService::json(false, 'Database error', [], 500);
+            return;
+        }
+        $stmt->bind_param('s', $email);
+        $stmt->execute();
+        $user = $stmt->get_result()->fetch_assoc();
+
+        if (!$user) {
+            ResponseService::json(false, 'Account not found for this email', [], 404);
+            return;
+        }
+
+        $userId = (int)$user['id'];
+        $newHash = password_hash($new, PASSWORD_BCRYPT);
+        $update = $conn->prepare("UPDATE users SET password_hash = ? WHERE id = ? LIMIT 1");
+        if (!$update) {
+            ResponseService::json(false, 'Database error', [], 500);
+            return;
+        }
+        $update->bind_param('si', $newHash, $userId);
+
+        if ($update->execute()) {
+            ResponseService::json(true, 'Password reset successful. You can now log in.');
+            return;
+        }
+
+        ResponseService::json(false, 'Update failed', [], 500);
+    }
 }
