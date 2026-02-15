@@ -2,6 +2,8 @@
 
 return [
     'member' => 'api/superAdmin.php',
+    'team/list-team' => 'api/team.php',
+    'list-team' => 'api/team.php',
     // 'create-project'=>'api/admin.php'
 
     'projects'        => 'api/project.php',

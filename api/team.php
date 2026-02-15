@@ -49,7 +49,7 @@ if ($route === 'team/detail') {
     TeamController::detail();
     exit;
 }
-if ($route === 'team/list-team') {
+if ($route === 'team/list-team' || $route === 'list-team') {
     TeamController::listTeamMembers();
     exit;
 }
