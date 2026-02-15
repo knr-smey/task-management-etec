@@ -149,6 +149,9 @@ $token = csrf_token();
                                 <div class="course-item px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer transition" data-value="Backend">
                                     Backend
                                 </div>
+                                <div class="course-item px-3 py-2 text-sm hover:bg-blue-50 cursor-pointer transition" data-value="Full-Stack">
+                                    Full-Stack
+                                </div>
                             </div>
                         </div>
                     </div>

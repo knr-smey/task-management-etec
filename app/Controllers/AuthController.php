@@ -259,6 +259,10 @@ class AuthController
             ResponseService::json(false, 'Valid email is required', [], 422);
             return;
         }
+        if (!preg_match('/@etec\.com$/i', $email)) {
+            ResponseService::json(false, 'Email must be @etec.com', [], 422);
+            return;
+        }
 
         if ($new === '' || $confirm === '') {
             ResponseService::json(false, 'New password and confirmation are required', [], 422);

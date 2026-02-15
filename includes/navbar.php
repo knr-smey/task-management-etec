@@ -33,17 +33,9 @@ if ($currentProjectId > 0 && !empty($navbarProjects)) {
 <nav class="navbar-blur text-white px-6 h-16 flex items-center justify-between fixed top-0 left-0 right-0 z-50 border-b border-white/10">
     <!-- Left -->
     <div class="flex items-center gap-3">
-        <div class="flex items-center gap-2">
-            <div class="w-9 h-9 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center shadow-lg">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
-                        d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-            </div>
-            <span class="text-xl font-bold tracking-tight">
-                KRU <span class="text-blue-300 font-normal">Solution</span>
-            </span>
-        </div>
+        <span class="text-xl font-bold tracking-tight">
+            KRU - IT <span class="text-blue-300 font-normal">Solution</span>
+        </span>
     </div>
 
     <!-- Right -->

@@ -23,7 +23,7 @@ class User
     {
         global $conn;
 
-        $stmt = $conn->prepare("SELECT id, name, email, course, is_active FROM users WHERE id = ? LIMIT 1");
+        $stmt = $conn->prepare("SELECT id, name, email, course, is_active, created_at FROM users WHERE id = ? LIMIT 1");
         if (!$stmt) {
             return null;
         }
