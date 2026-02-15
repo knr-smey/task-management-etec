@@ -9,6 +9,7 @@ require_once __DIR__ . '/../Models/Team.php';
 require_once __DIR__ . '/../Models/TeamSession.php';
 require_once __DIR__ . '/../Models/TeamInvite.php';
 require_once __DIR__ . '/../Models/TeamMember.php';
+require_once __DIR__ . '/../Models/Project.php';
 
 class TeamController
 {
@@ -412,6 +413,7 @@ class TeamController
 
         if (!TeamMember::exists($teamId, $memberId)) {
             TeamMember::add($teamId, $memberId);
+            Project::addMemberToTeamProjects($teamId, $memberId);
             TeamInvite::incrementUsage((int)$invite['id']);
         }
 
@@ -476,7 +478,6 @@ class TeamController
         $sessions = TeamSession::allByTeam($teamId);
 
         // projects under team
-        require_once __DIR__ . '/../Models/Project.php';
         $projects = Project::allByTeam($teamId);
 
         // assign modal (admin only)

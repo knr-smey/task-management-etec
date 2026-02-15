@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../config/db.php';
 require_once __DIR__ . '/../../includes/helpers.php';
 require_once __DIR__ . '/../Services/ResponseService.php';
+require_once __DIR__ . '/../Models/Project.php';
 
 class AuthController
 {
@@ -80,6 +81,10 @@ class AuthController
             'email' => $user['email'],
             'roles' => $roles
         ];
+
+        if (in_array('member', $roles, true)) {
+            Project::syncTeamProjectsForMember((int)$user['id']);
+        }
 
         // ✅ IMPORTANT: if user came from invite link, redirect back to join
         if (!empty($_SESSION['join_invite_token'])) {

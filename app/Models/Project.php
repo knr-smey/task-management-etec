@@ -309,6 +309,45 @@ class Project
         }
     }
 
+    public static function addMemberToTeamProjects(int $teamId, int $memberId): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            INSERT IGNORE INTO project_members (project_id, user_id, created_at)
+            SELECT p.id, ?, NOW()
+            FROM projects p
+            WHERE p.team_id = ?
+        ");
+
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("ii", $memberId, $teamId);
+        return $stmt->execute();
+    }
+
+    public static function syncTeamProjectsForMember(int $memberId): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            INSERT IGNORE INTO project_members (project_id, user_id, created_at)
+            SELECT p.id, ?, NOW()
+            FROM projects p
+            INNER JOIN team_members tm ON tm.team_id = p.team_id
+            WHERE tm.member_id = ?
+        ");
+
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("ii", $memberId, $memberId);
+        return $stmt->execute();
+    }
+
     public static function fetchProjectBestonUser_id(int $userId): array
     {
         global $conn;
@@ -319,9 +358,12 @@ class Project
                 p.name,
                 p.team_id
             FROM projects p
-            JOIN project_members pm
+            LEFT JOIN project_members pm
                 ON pm.project_id = p.id
+            LEFT JOIN team_members tm
+                ON tm.team_id = p.team_id
             WHERE pm.user_id = ?
+               OR tm.member_id = ?
             ORDER BY p.name
         ";
 
@@ -330,7 +372,7 @@ class Project
             return [];
         }
 
-        $stmt->bind_param('i', $userId);
+        $stmt->bind_param('ii', $userId, $userId);
         $stmt->execute();
 
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
