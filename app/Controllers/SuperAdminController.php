@@ -9,9 +9,23 @@ require_once __DIR__ . '/../Models/User.php';
 
 class SuperAdminController
 {
-    public static function getMember()
+    private static function authorize(): array
     {
         $currentUser = $_SESSION['user'] ?? [];
+
+        if (
+            !userHasRole($currentUser, 'super_admin') &&
+            !userHasRole($currentUser, 'admin')
+        ) {
+            ResponseService::json(false, 'Forbidden', [], 403);
+        }
+
+        return $currentUser;
+    }
+
+    public static function getMember()
+    {
+        $currentUser = self::authorize();
         $members = User::all($currentUser);
 
         require __DIR__ . '/../../pages/superAdmin/member.php';
@@ -19,6 +33,8 @@ class SuperAdminController
 
     public static function create()
     {
+        self::authorize();
+
         $id = $_POST['hide_id'] ?? '';
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -85,6 +101,8 @@ class SuperAdminController
 
     public static function deleteMember()
     {
+        self::authorize();
+
         if (!verify_csrf($_POST['csrf'] ?? '')) {
             ResponseService::json(false, 'Invalid CSRF token', [], 403);
         }

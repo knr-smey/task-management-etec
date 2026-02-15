@@ -16,8 +16,7 @@ class MemberController
         // ✅ Use your existing role helper (same as User::all rules)
         if (
             !userHasRole($currentUser, 'super_admin') &&
-            !userHasRole($currentUser, 'admin') &&
-            !userHasRole($currentUser, 'instructor')
+            !userHasRole($currentUser, 'admin')
         ) {
             ResponseService::json(false, 'Forbidden', [], 403);
         }
