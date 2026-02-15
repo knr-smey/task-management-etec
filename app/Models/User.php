@@ -35,7 +35,7 @@ class User
         return $row ?: null;
     }
 
-    public static function all(array $currentUser = []): array
+    public static function all(array $currentUser = [], ?int $teamId = null): array
     {
         global $conn;
 
@@ -83,6 +83,12 @@ class User
             $types .= 'i';
         } else {
             return [];
+        }
+
+        if ($teamId !== null && $teamId > 0) {
+            $where[] = "tm.team_id = ?";
+            $params[] = $teamId;
+            $types .= 'i';
         }
 
         if ($where) {

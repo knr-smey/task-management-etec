@@ -26,7 +26,14 @@ class SuperAdminController
     public static function getMember()
     {
         $currentUser = self::authorize();
-        $members = User::all($currentUser);
+
+        $teamFilterId = null;
+        if (!userHasRole($currentUser, 'super_admin')) {
+            $teamFilterId = (int)($_GET['team_id'] ?? 0);
+            $teamFilterId = $teamFilterId > 0 ? $teamFilterId : null;
+        }
+
+        $members = User::all($currentUser, $teamFilterId);
 
         require __DIR__ . '/../../pages/superAdmin/member.php';
     }

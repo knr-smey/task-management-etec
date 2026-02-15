@@ -49,5 +49,9 @@ if ($route === 'team/detail') {
     TeamController::detail();
     exit;
 }
+if ($route === 'team/list-team') {
+    TeamController::listTeamMembers();
+    exit;
+}
 
 ResponseService::json(false, 'Not found', [], 404);

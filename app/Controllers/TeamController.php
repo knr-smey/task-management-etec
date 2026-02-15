@@ -421,6 +421,54 @@ class TeamController
     }
 
     /**
+     * PAGE: Team members list (OWNER OR JOINED MEMBER)
+     * URL: /team/list-team?id=XX
+     */
+    public static function listTeamMembers(): void
+    {
+        $user = self::authorizeAny();
+
+        $teamId = (int)($_GET['id'] ?? ($_GET['team_id'] ?? 0));
+        if ($teamId <= 0) {
+            redirect('team');
+        }
+
+        $team = Team::findWithOwner($teamId);
+        if (!$team) {
+            redirect('team');
+        }
+
+        $isOwner  = ((int)$team['created_by'] === (int)$user['id']);
+        $isMember = TeamMember::exists($teamId, (int)$user['id']);
+
+        if (!$isOwner && !$isMember) {
+            die("You don't have permission.");
+        }
+
+        $members = TeamMember::allByTeam($teamId);
+        $memberCount = count($members);
+
+        $groupedMembers = [
+            'Manager' => [],
+            'Member'  => [],
+        ];
+
+        if (!empty($team['owner_name'])) {
+            $groupedMembers['Manager'][] = $team['owner_name'];
+        }
+
+        foreach ($members as $m) {
+            if (!empty($m['name']) && $m['name'] !== $team['owner_name']) {
+                $groupedMembers['Member'][] = $m['name'];
+            }
+        }
+
+        $groupedMembers = array_filter($groupedMembers);
+
+        require __DIR__ . '/../../pages/team/list-team.php';
+    }
+
+    /**
      * PAGE: Team detail (OWNER OR JOINED MEMBER)
      * URL: /team/detail?id=XX
      */

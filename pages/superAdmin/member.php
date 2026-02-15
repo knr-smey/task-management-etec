@@ -15,6 +15,12 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
     <div>
         <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 tracking-tight">Members</h1>
         <p class="text-sm text-gray-500 mt-1">Manage your team members and their roles</p>
+        <?php if (!empty($teamFilterId)): ?>
+            <div class="mt-3 inline-flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-3 py-1.5 text-sm text-blue-700">
+                <span>Filtered by team #<?= (int)$teamFilterId ?></span>
+                <a href="<?= e(BASE_URL) ?>member" class="font-semibold underline hover:text-blue-800">Clear</a>
+            </div>
+        <?php endif; ?>
     </div>
 
     <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
