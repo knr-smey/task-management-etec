@@ -3,6 +3,8 @@
 return [
     'team/list-team' => 'api/team.php',
     'list-team' => 'api/team.php',
+    'team/remove-member' => 'api/team.php',
+    'remove-member' => 'api/team.php',
     'project-detail' => 'api/project.php',
     'project'=>'pages/instructor/project/create.php',
     'board'=>'pages/instructor/boards/index.php',

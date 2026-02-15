@@ -348,6 +348,26 @@ class Project
         return $stmt->execute();
     }
 
+    public static function removeMemberFromTeamProjects(int $teamId, int $memberId): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            DELETE pm
+            FROM project_members pm
+            INNER JOIN projects p ON p.id = pm.project_id
+            WHERE p.team_id = ?
+              AND pm.user_id = ?
+        ");
+
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("ii", $teamId, $memberId);
+        return $stmt->execute();
+    }
+
     public static function fetchProjectBestonUser_id(int $userId): array
     {
         global $conn;

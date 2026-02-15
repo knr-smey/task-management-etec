@@ -447,25 +447,90 @@ class TeamController
 
         $members = TeamMember::allByTeam($teamId);
         $memberCount = count($members);
-
-        $groupedMembers = [
-            'Manager' => [],
-            'Member'  => [],
-        ];
-
-        if (!empty($team['owner_name'])) {
-            $groupedMembers['Manager'][] = $team['owner_name'];
-        }
-
-        foreach ($members as $m) {
-            if (!empty($m['name']) && $m['name'] !== $team['owner_name']) {
-                $groupedMembers['Member'][] = $m['name'];
-            }
-        }
-
-        $groupedMembers = array_filter($groupedMembers);
+        $canManageMembers = (
+            $isOwner ||
+            userHasRole($user, 'super_admin') ||
+            userHasRole($user, 'admin') ||
+            userHasRole($user, 'instructor')
+        );
+        $canEditUsers = (
+            userHasRole($user, 'super_admin') ||
+            userHasRole($user, 'admin') ||
+            userHasRole($user, 'instructor')
+        );
+        $token = csrf_token();
 
         require __DIR__ . '/../../pages/team/list-team.php';
+    }
+
+    public static function removeMember(): void
+    {
+        $user = self::authorizeAny();
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            ResponseService::json(false, 'Invalid request method', [], 405);
+            return;
+        }
+
+        if (!verify_csrf($_POST['csrf'] ?? '')) {
+            ResponseService::json(false, 'Invalid CSRF token', [], 403);
+            return;
+        }
+
+        $teamId = (int)($_POST['team_id'] ?? 0);
+        $memberId = (int)($_POST['member_id'] ?? 0);
+
+        if ($teamId <= 0 || $memberId <= 0) {
+            ResponseService::json(false, 'Team and member are required', [], 422);
+            return;
+        }
+
+        $team = Team::findWithOwner($teamId);
+        if (!$team) {
+            ResponseService::json(false, 'Team not found', [], 404);
+            return;
+        }
+
+        $isOwner = ((int)$team['created_by'] === (int)$user['id']);
+        $canManage = (
+            $isOwner ||
+            userHasRole($user, 'super_admin') ||
+            userHasRole($user, 'admin') ||
+            userHasRole($user, 'instructor')
+        );
+
+        if (!$canManage) {
+            ResponseService::json(false, 'Forbidden', [], 403);
+            return;
+        }
+
+        if ($memberId === (int)$team['created_by']) {
+            ResponseService::json(false, 'Cannot remove team owner', [], 422);
+            return;
+        }
+
+        if (!TeamMember::exists($teamId, $memberId)) {
+            ResponseService::json(false, 'Member not found in this team', [], 404);
+            return;
+        }
+
+        global $conn;
+        $conn->begin_transaction();
+
+        try {
+            $removed = TeamMember::remove($teamId, $memberId);
+            if (!$removed) {
+                throw new Exception('Failed to remove team member');
+            }
+
+            Project::removeMemberFromTeamProjects($teamId, $memberId);
+
+            $conn->commit();
+            ResponseService::json(true, 'Member removed from team');
+        } catch (Throwable $e) {
+            $conn->rollback();
+            ResponseService::json(false, 'Remove failed', ['error' => $e->getMessage()], 500);
+        }
     }
 
     /**

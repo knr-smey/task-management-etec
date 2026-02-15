@@ -53,5 +53,9 @@ if ($route === 'team/list-team' || $route === 'list-team') {
     TeamController::listTeamMembers();
     exit;
 }
+if ($route === 'team/remove-member' || $route === 'remove-member') {
+    TeamController::removeMember();
+    exit;
+}
 
 ResponseService::json(false, 'Not found', [], 404);

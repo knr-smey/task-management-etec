@@ -33,15 +33,41 @@ class TeamMember
         global $conn;
 
         $stmt = $conn->prepare("
-        SELECT u.id, u.name, u.email, tm.joined_at
+        SELECT
+            u.id,
+            u.name,
+            u.email,
+            u.course,
+            u.is_active,
+            tm.joined_at,
+            COALESCE(GROUP_CONCAT(DISTINCT r.name ORDER BY r.name SEPARATOR ', '), 'member') AS roles
         FROM team_members tm
         JOIN users u ON u.id = tm.member_id
+        LEFT JOIN user_roles ur ON ur.user_id = u.id
+        LEFT JOIN roles r ON r.id = ur.role_id
         WHERE tm.team_id = ?
+        GROUP BY u.id, u.name, u.email, u.course, u.is_active, tm.joined_at
         ORDER BY tm.joined_at DESC
     ");
         $stmt->bind_param("i", $teamId);
         $stmt->execute();
 
         return $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
+    }
+
+    public static function remove(int $teamId, int $memberId): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            DELETE FROM team_members
+            WHERE team_id = ? AND member_id = ?
+        ");
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("ii", $teamId, $memberId);
+        return $stmt->execute();
     }
 }

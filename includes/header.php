@@ -23,6 +23,7 @@ function accessing($message)
 
   <!-- CSS -->
   <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css">
+  <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/team-list.css">
   <link rel="icon" href="<?= e(BASE_URL) ?>public/Image/KRUSolutionLogo.png">
 
   <!-- Khmer font -->
