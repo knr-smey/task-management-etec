@@ -57,6 +57,24 @@ class TaskController
         return (int)($task['created_by'] ?? 0) === (int)($user['id'] ?? 0);
     }
 
+    private static function buildAllowedAssigneeIds(int $projectId, array $project): array
+    {
+        $ids = array_map('intval', Project::getAssignedMemberIds($projectId));
+
+        $teamMembers = $project['team']['members'] ?? [];
+        if (!empty($teamMembers)) {
+            $ids = array_merge($ids, array_map('intval', array_column($teamMembers, 'id')));
+        }
+
+        $teamOwnerId = (int)($project['team']['created_by'] ?? 0);
+        if ($teamOwnerId > 0) {
+            $ids[] = $teamOwnerId;
+        }
+
+        $ids = array_values(array_unique(array_filter($ids, static fn(int $id): bool => $id > 0)));
+        return $ids;
+    }
+
     private static function ensureProjectAccess(int $projectId, array $user): ?array
     {
         if ($projectId <= 0) {
@@ -123,8 +141,8 @@ class TaskController
         $assigneeId = (int)($_POST['assignee_id'] ?? 0);
 
         if ($assigneeId > 0) {
-            $assignedIds = Project::getAssignedMemberIds($projectId);
-            if (!in_array($assigneeId, $assignedIds, true) && $assigneeId !== (int)$user['id']) {
+            $allowedAssigneeIds = self::buildAllowedAssigneeIds($projectId, $project);
+            if (!in_array($assigneeId, $allowedAssigneeIds, true) && $assigneeId !== (int)$user['id']) {
                 ResponseService::json(false, 'Assignee not in this project', [], 422);
             }
         }
@@ -319,8 +337,7 @@ class TaskController
             ResponseService::json(false, 'Forbidden', [], 403);
         }
 
-        $teamMembers = $project['team']['members'] ?? [];
-        $allowedIds = array_map('intval', array_column($teamMembers, 'id'));
+        $allowedIds = self::buildAllowedAssigneeIds((int)$task['project_id'], $project);
 
         if (empty($allowedIds) || !in_array($assigneeId, $allowedIds, true)) {
             ResponseService::json(false, 'Assignee not in this team', [], 422);

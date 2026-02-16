@@ -280,7 +280,32 @@ class Team
         $stmt->bind_param("i", $teamId);
         $stmt->execute();
 
-        $team['members'] = $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
+        $members = $stmt->get_result()->fetch_all(MYSQLI_ASSOC) ?? [];
+
+        // Ensure team owner/manager is assignable in project task flows
+        $ownerId = (int)($team['created_by'] ?? 0);
+        if ($ownerId > 0) {
+            $memberIds = array_map('intval', array_column($members, 'id'));
+            if (!in_array($ownerId, $memberIds, true)) {
+                $stmtOwner = $conn->prepare("
+                    SELECT id, name, email, course
+                    FROM users
+                    WHERE id = ?
+                    LIMIT 1
+                ");
+                if ($stmtOwner) {
+                    $stmtOwner->bind_param("i", $ownerId);
+                    $stmtOwner->execute();
+                    $owner = $stmtOwner->get_result()->fetch_assoc();
+                    if ($owner) {
+                        $owner['joined_at'] = null;
+                        array_unshift($members, $owner);
+                    }
+                }
+            }
+        }
+
+        $team['members'] = $members;
 
         return $team;
     }
