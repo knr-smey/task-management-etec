@@ -220,41 +220,41 @@ if ($totalPages > 0) {
         </table>
     </div>
 
-    <div class="bg-white px-6 py-4 border-t border-gray-200">
-        <div class="flex items-center justify-between flex-wrap gap-3">
-            <div class="text-sm text-gray-600">
+    <div class="bg-white px-6 py-3 border-t border-gray-200">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="text-xs text-gray-600">
                 Showing <span class="font-semibold text-gray-900"><?= $start ?></span> to
                 <span class="font-semibold text-gray-900"><?= $end ?></span> of
                 <span class="font-semibold text-gray-900"><?= $total ?></span> members
             </div>
 
-            <div class="flex items-center gap-2 flex-wrap">
+            <div class="flex items-center gap-1.5 flex-wrap">
                 <?php if ($totalPages > 1): ?>
                     <?php if ($currentPage > 1): ?>
-                        <a class="member-page-link px-3 py-1 rounded border bg-white hover:bg-gray-100" href="<?= $buildPageUrl($currentPage - 1) ?>">Prev</a>
+                        <a class="member-page-link px-2.5 py-0.5 rounded border text-xs leading-5 bg-white hover:bg-gray-100" href="<?= $buildPageUrl($currentPage - 1) ?>">Prev</a>
                     <?php else: ?>
-                        <span class="px-3 py-1 rounded border bg-gray-100 text-gray-400 cursor-not-allowed">Prev</span>
+                        <span class="px-2.5 py-0.5 rounded border text-xs leading-5 bg-gray-100 text-gray-400 cursor-not-allowed">Prev</span>
                     <?php endif; ?>
 
                     <?php $prevRendered = null; ?>
                     <?php foreach ($visiblePages as $p): ?>
                         <?php if ($prevRendered !== null && $p - $prevRendered > 1): ?>
-                            <span class="px-2 py-1 text-gray-500">...</span>
+                            <span class="px-1 text-xs text-gray-500">...</span>
                         <?php endif; ?>
 
                         <?php if ($p === $currentPage): ?>
-                            <span class="px-3 py-1 rounded border bg-green-600 text-white"><?= $p ?></span>
+                            <span class="px-2.5 py-0.5 rounded border text-xs leading-5 bg-green-600 text-white"><?= $p ?></span>
                         <?php else: ?>
-                            <a class="member-page-link px-3 py-1 rounded border bg-white hover:bg-gray-100" href="<?= $buildPageUrl($p) ?>"><?= $p ?></a>
+                            <a class="member-page-link px-2.5 py-0.5 rounded border text-xs leading-5 bg-white hover:bg-gray-100" href="<?= $buildPageUrl($p) ?>"><?= $p ?></a>
                         <?php endif; ?>
 
                         <?php $prevRendered = $p; ?>
                     <?php endforeach; ?>
 
                     <?php if ($currentPage < $totalPages): ?>
-                        <a class="member-page-link px-3 py-1 rounded border bg-white hover:bg-gray-100" href="<?= $buildPageUrl($currentPage + 1) ?>">Next</a>
+                        <a class="member-page-link px-2.5 py-0.5 rounded border text-xs leading-5 bg-white hover:bg-gray-100" href="<?= $buildPageUrl($currentPage + 1) ?>">Next</a>
                     <?php else: ?>
-                        <span class="px-3 py-1 rounded border bg-gray-100 text-gray-400 cursor-not-allowed">Next</span>
+                        <span class="px-2.5 py-0.5 rounded border text-xs leading-5 bg-gray-100 text-gray-400 cursor-not-allowed">Next</span>
                     <?php endif; ?>
                 <?php endif; ?>
             </div>
