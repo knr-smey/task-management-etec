@@ -1,0 +1,83 @@
+.team-index-page {
+  --team-accent: #274193;
+  --team-accent-dark: #1f3478;
+  --team-accent-soft: #e8eefb;
+}
+
+.team-index-page .filter-select:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
+}
+
+.team-index-page .btn-new-team {
+  background: linear-gradient(135deg, var(--team-accent) 0%, var(--team-accent-dark) 100%);
+  transition: box-shadow 0.15s ease, background 0.15s ease;
+}
+
+.team-index-page .btn-new-team:hover {
+  background: linear-gradient(135deg, var(--team-accent-dark) 0%, #182a61 100%);
+  box-shadow: 0 8px 16px rgba(39, 65, 147, 0.25);
+}
+
+.team-index-page .title-gradient {
+  background: linear-gradient(135deg, var(--team-accent) 0%, var(--team-accent-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.team-index-page .text-blue-600,
+.team-index-page .text-blue-700 {
+  color: var(--team-accent) !important;
+}
+
+.team-index-page .text-blue-400 {
+  color: #6f86c7 !important;
+}
+
+.team-index-page .bg-blue-50 {
+  background-color: var(--team-accent-soft) !important;
+}
+
+.team-index-page .bg-blue-600,
+.team-index-page .bg-blue-700 {
+  background-color: var(--team-accent) !important;
+}
+
+.team-index-page .hover\:bg-blue-700:hover {
+  background-color: var(--team-accent-dark) !important;
+}
+
+.team-index-page .hover\:bg-blue-50:hover {
+  background-color: var(--team-accent-soft) !important;
+}
+
+.team-index-page .hover\:border-blue-200:hover {
+  border-color: rgba(39, 65, 147, 0.35) !important;
+}
+
+.team-index-page .group:hover .group-hover\:text-blue-600,
+.team-index-page .group-hover\:text-blue-600:hover {
+  color: var(--team-accent) !important;
+}
+
+.team-index-page .group:hover .group-hover\:from-blue-400 {
+  --tw-gradient-from: var(--team-accent) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(39 65 147 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+
+.team-index-page .group:hover .group-hover\:to-blue-500 {
+  --tw-gradient-to: var(--team-accent-dark) var(--tw-gradient-to-position) !important;
+}
+
+.team-index-page .bg-gradient-to-br.from-blue-600.to-blue-800 {
+  background-image: linear-gradient(135deg, var(--team-accent) 0%, var(--team-accent-dark) 100%) !important;
+}
+
+.team-index-page .focus\:ring-blue-600:focus {
+  --tw-ring-color: rgb(39 65 147 / 0.35) !important;
+}
+
+.team-index-page .focus\:border-blue-600:focus {
+  border-color: var(--team-accent) !important;
+}

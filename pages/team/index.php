@@ -10,29 +10,7 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
 $token = csrf_token();
 ?>
 
-<style>
-  .filter-select:hover {
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.08);
-  }
-
-  .btn-new-team {
-    background: linear-gradient(135deg, #294FBD 0%, #1F3E9A 100%);
-    transition: box-shadow 0.15s ease, background 0.15s ease;
-  }
-
-  .btn-new-team:hover {
-    background: linear-gradient(135deg, #2448AD 0%, #1A3585 100%);
-    box-shadow: 0 8px 16px rgba(41, 79, 189, 0.25);
-  }
-
-    .title-gradient {
-      background: linear-gradient(135deg, #294FBD 0%, #1F3E9A 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-</style>
-
+<div class="team-index-page">
 <!-- page header -->
 <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-8">
 
@@ -106,6 +84,7 @@ $token = csrf_token();
   <div id="teamCardsWrap" class="transition-all duration-300">
     <?php require_once __DIR__ . '/../components/team-cards.php'; ?>
   </div>
+</div>
 </div>
 
 <?php require_once __DIR__ . '/../components/team-modal.php'; ?>

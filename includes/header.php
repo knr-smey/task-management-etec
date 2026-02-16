@@ -15,6 +15,8 @@ function accessing($message)
 
 $appCssVersion = (string) (@filemtime(__DIR__ . '/../assets/css/app.css') ?: '1');
 $teamListCssVersion = (string) (@filemtime(__DIR__ . '/../assets/css/team-list.css') ?: '1');
+$teamIndexCssVersion = (string) (@filemtime(__DIR__ . '/../assets/css/team-index.css') ?: '1');
+$isTeamIndexPage = function_exists('currentPath') && currentPath() === '/team';
 ?>
 <!doctype html>
 <html lang="en">
@@ -27,6 +29,9 @@ $teamListCssVersion = (string) (@filemtime(__DIR__ . '/../assets/css/team-list.c
   <!-- CSS -->
   <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css?v=<?= e($appCssVersion) ?>">
   <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/team-list.css?v=<?= e($teamListCssVersion) ?>">
+  <?php if ($isTeamIndexPage): ?>
+    <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/team-index.css?v=<?= e($teamIndexCssVersion) ?>">
+  <?php endif; ?>
   <link rel="icon" href="<?= e(BASE_URL) ?>public/Image/KRUSolutionLogo.png">
 
   <!-- Khmer font -->
