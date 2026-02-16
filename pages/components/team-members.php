@@ -1,7 +1,7 @@
 <!-- Members Card -->
 <?php
 $teamId = (int)($team['id'] ?? ($_GET['id'] ?? 0));
-$canOpenMembersPage = ($teamId > 0);
+$canOpenMembersPage = ($teamId > 0) && !empty($canOpenTeamMemberList);
 $membersFilterUrl = e(BASE_URL) . 'team/list-team?id=' . $teamId;
 ?>
 <div class="bg-white rounded-2xl shadow-lg border border-slate-200 p-6 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 ">

@@ -12,6 +12,9 @@ function accessing($message)
     }
   }
 }
+
+$appCssVersion = (string) (@filemtime(__DIR__ . '/../assets/css/app.css') ?: '1');
+$teamListCssVersion = (string) (@filemtime(__DIR__ . '/../assets/css/team-list.css') ?: '1');
 ?>
 <!doctype html>
 <html lang="en">
@@ -22,8 +25,8 @@ function accessing($message)
   <title><?= e(APP_NAME) ?></title>
 
   <!-- CSS -->
-  <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css">
-  <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/team-list.css">
+  <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/app.css?v=<?= e($appCssVersion) ?>">
+  <link rel="stylesheet" href="<?= e(BASE_URL) ?>assets/css/team-list.css?v=<?= e($teamListCssVersion) ?>">
   <link rel="icon" href="<?= e(BASE_URL) ?>public/Image/KRUSolutionLogo.png">
 
   <!-- Khmer font -->

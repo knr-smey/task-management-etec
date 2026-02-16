@@ -38,6 +38,28 @@ class TeamController
         return $user;
     }
 
+    private static function isUserAssignedToAnyTeamProject(int $teamId, int $userId): bool
+    {
+        global $conn;
+
+        $stmt = $conn->prepare("
+            SELECT 1
+            FROM projects p
+            INNER JOIN project_members pm ON pm.project_id = p.id
+            WHERE p.team_id = ?
+              AND pm.user_id = ?
+            LIMIT 1
+        ");
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bind_param("ii", $teamId, $userId);
+        $stmt->execute();
+
+        return (bool)$stmt->get_result()->fetch_row();
+    }
+
     /**
      * PAGE: Team list (ADMIN ONLY)
      */
@@ -438,10 +460,15 @@ class TeamController
             redirect('team');
         }
 
+        if (function_exists('isMemberOnly') && isMemberOnly($user)) {
+            redirect('team/detail?id=' . $teamId);
+        }
+
         $isOwner  = ((int)$team['created_by'] === (int)$user['id']);
         $isMember = TeamMember::exists($teamId, (int)$user['id']);
+        $isProjectMember = self::isUserAssignedToAnyTeamProject($teamId, (int)$user['id']);
 
-        if (!$isOwner && !$isMember) {
+        if (!$isOwner && !$isMember && !$isProjectMember) {
             die("You don't have permission.");
         }
 
@@ -557,8 +584,9 @@ class TeamController
         // permission
         $isOwner  = ((int)$team['created_by'] === (int)$user['id']);
         $isMember = TeamMember::exists($teamId, (int)$user['id']);
+        $isProjectMember = self::isUserAssignedToAnyTeamProject($teamId, (int)$user['id']);
 
-        if (!$isOwner && !$isMember) {
+        if (!$isOwner && !$isMember && !$isProjectMember) {
             die("You don't have permission.");
         }
 
@@ -601,6 +629,7 @@ class TeamController
         );
 
         $canTrackAttendance = ($isOwner || $isMember);
+        $canOpenTeamMemberList = !(function_exists('isMemberOnly') && isMemberOnly($user));
 
         $assignableProjects = [];
         if ($isAdmin) {

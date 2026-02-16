@@ -13,6 +13,16 @@ $ownerId = (int)($team['created_by'] ?? 0);
 $members = $members ?? [];
 ?>
 
+<style>
+    .team-list-page .team-list-table>thead,
+    .team-list-page .team-list-table>thead>tr,
+    .team-list-page .team-list-table>thead>tr>th {
+        background: #274193 !important;
+        background-image: none !important;
+        color: #ffffff !important;
+    }
+</style>
+
 <section class="team-list-page">
     <div class="team-list-wrap">
         <div class="team-list-header">

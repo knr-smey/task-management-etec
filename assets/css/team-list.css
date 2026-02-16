@@ -107,12 +107,21 @@
   border-spacing: 0;
 }
 
-.team-list-table thead,
-.team-list-table thead tr,
-.team-list-table thead th {
+.team-list-table > thead {
   background: var(--team-accent) !important;
   background-image: none !important;
-  color: #ffffff;
+}
+
+.team-list-table > thead > tr {
+  background: var(--team-accent) !important;
+  background-image: none !important;
+}
+
+.team-list-table > thead > tr > th {
+  background: var(--team-accent) !important;
+  background-color: var(--team-accent) !important;
+  background-image: none !important;
+  color: #ffffff !important;
 }
 
 .team-list-table th {
