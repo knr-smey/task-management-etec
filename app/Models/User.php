@@ -55,7 +55,7 @@ class User
             {$scope['from']}
             {$scope['whereSql']}
             GROUP BY u.id
-            ORDER BY u.id ASC
+            ORDER BY u.id DESC
         ";
 
         if (!$scope['params']) {
@@ -161,7 +161,7 @@ class User
             {$scope['from']}
             {$scope['whereSql']}
             GROUP BY u.id
-            ORDER BY u.id ASC
+            ORDER BY u.id DESC
             LIMIT ?
             OFFSET ?
         ";
