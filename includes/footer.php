@@ -39,15 +39,43 @@ require_once __DIR__ . '/../pages/components/project-modal.php';
             loader.style.opacity = '0';
         };
 
+        const shouldSkipLoaderForLink = (event, link) => {
+            if (!link) return true;
+            if (event.defaultPrevented) return true;
+            if (event.button !== 0) return true; // not left click
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return true;
+            if (link.target === '_blank' || link.hasAttribute('download')) return true;
+            if (link.hasAttribute('data-no-loader')) return true;
+
+            const href = link.getAttribute('href') || '';
+            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return true;
+
+            // Only show loader for same-origin full navigations
+            try {
+                const url = new URL(href, window.location.href);
+                if (url.origin !== window.location.origin) return true;
+            } catch (e) {
+                return true;
+            }
+
+            return false;
+        };
+
+        // Ensure loader is hidden on initial render and when restored from browser history cache.
+        hideLoader();
+        document.addEventListener('DOMContentLoaded', hideLoader);
         window.addEventListener('load', hideLoader);
+        window.addEventListener('pageshow', hideLoader);
+        window.addEventListener('popstate', hideLoader);
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+                hideLoader();
+            }
+        });
 
         document.addEventListener('click', (event) => {
             const link = event.target.closest('a');
-            if (!link) return;
-
-            const href = link.getAttribute('href') || '';
-            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
-            if (link.target === '_blank' || link.hasAttribute('download')) return;
+            if (shouldSkipLoaderForLink(event, link)) return;
 
             showLoader();
         });
