@@ -13,7 +13,12 @@
         </div>
     <?php else: ?>
         <?php foreach ($teams as $team): ?>
-            <div class="bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 hover:border-blue-200 group">
+            <div
+                class="teamCardLink bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 p-6 border border-gray-100 hover:border-blue-200 group cursor-pointer"
+                data-href="<?= e(BASE_URL) ?>team/detail?id=<?= (int)$team['id'] ?>"
+                role="link"
+                tabindex="0"
+                aria-label="View team detail: <?= e($team['name']) ?>">
 
                 <!-- Header -->
                 <div class="flex items-start justify-between mb-5">

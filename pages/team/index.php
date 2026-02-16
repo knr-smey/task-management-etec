@@ -171,6 +171,36 @@ $token = csrf_token();
       $(".teamMenuBtn").attr("aria-expanded", "false");
     }
 
+    const teamCardIgnoreSelector = "a, button, input, select, textarea, label, .teamMenu, .teamMenuBtn";
+
+    $(document).on("click", ".teamCardLink", function(e) {
+      if ($(e.target).closest(teamCardIgnoreSelector).length) {
+        return;
+      }
+
+      const href = $(this).data("href");
+      if (href) {
+        window.location.href = href;
+      }
+    });
+
+    $(document).on("keydown", ".teamCardLink", function(e) {
+      if (e.key !== "Enter" && e.key !== " ") {
+        return;
+      }
+
+      if ($(e.target).closest(teamCardIgnoreSelector).length && e.target !== this) {
+        return;
+      }
+
+      e.preventDefault();
+
+      const href = $(this).data("href");
+      if (href) {
+        window.location.href = href;
+      }
+    });
+
     $(document).on("click", ".teamMenuBtn", function(e) {
       e.stopPropagation();
 
