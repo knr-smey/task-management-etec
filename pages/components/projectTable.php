@@ -162,16 +162,33 @@
             </thead>
 
             <tbody id="projectTableBody" class="divide-y divide-gray-100 bg-white invisible">
-                <?php foreach ($projects as $index => $p): ?>
-                    <tr class="projectRow table-row-hover hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 cursor-pointer fade-in-row"
-                        style="animation-delay: <?= $index * 0.05 ?>s"
-                        data-href="<?= e(BASE_URL) ?>project-detail?id=<?= (int)$p['id'] ?>"
-                        data-id="<?= (int)$p['id'] ?>"
-                        data-name="<?= e($p['name']) ?>"
-                        data-description="<?= e($p['description'] ?? '') ?>"
-                        data-status="<?= e($p['status'] ?? 'active') ?>"
-                        data-start="<?= e($p['start_date'] ?? '') ?>"
-                        data-end="<?= e($p['end_date'] ?? '') ?>">
+                <?php if (empty($projects)): ?>
+                    <tr>
+                        <td colspan="9" class="px-6 py-14 text-center">
+                            <div class="flex flex-col items-center gap-3">
+                                <div class="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center">
+                                    <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="text-gray-900 font-semibold mb-1">No projects yet</p>
+                                    <p class="text-sm text-gray-500">This user has not created any projects yet.</p>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($projects as $index => $p): ?>
+                        <tr class="projectRow table-row-hover hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 cursor-pointer fade-in-row"
+                            style="animation-delay: <?= $index * 0.05 ?>s"
+                            data-href="<?= e(BASE_URL) ?>project-detail?id=<?= (int)$p['id'] ?>"
+                            data-id="<?= (int)$p['id'] ?>"
+                            data-name="<?= e($p['name']) ?>"
+                            data-description="<?= e($p['description'] ?? '') ?>"
+                            data-status="<?= e($p['status'] ?? 'active') ?>"
+                            data-start="<?= e($p['start_date'] ?? '') ?>"
+                            data-end="<?= e($p['end_date'] ?? '') ?>">
                         
                         <td class="px-6 py-4 whitespace-nowrap">
                             <div class="flex items-center">
@@ -316,48 +333,59 @@
                                 </div>
                             <?php endif; ?>
                         </td>
-                    </tr>
-                <?php endforeach; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </tbody>
         </table>
     </div>
 
-    <!-- Pagination -->
-    <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-t border-gray-200">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 text-sm text-gray-600">
-                <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-                <span class="font-semibold">Showing projects</span>
+    <?php if (!empty($projects)): ?>
+        <!-- Pagination -->
+        <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 text-sm text-gray-600">
+                    <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span class="font-semibold">Showing projects</span>
+                </div>
+                <div id="projectPagenation" class="flex gap-2 flex-wrap"></div>
             </div>
-            <div id="projectPagenation" class="flex gap-2 flex-wrap"></div>
         </div>
-    </div>
 
-    <!-- Mobile Scroll Hint -->
-    <div class="bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-3 border-t border-gray-200 text-center lg:hidden">
-        <div class="flex items-center justify-center gap-2 text-xs text-gray-600">
-            <svg class="w-4 h-4 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
-            </svg>
-            <span class="font-medium">Scroll horizontally to see more</span>
-            <svg class="w-4 h-4 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
-            </svg>
+        <!-- Mobile Scroll Hint -->
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 px-6 py-3 border-t border-gray-200 text-center lg:hidden">
+            <div class="flex items-center justify-center gap-2 text-xs text-gray-600">
+                <svg class="w-4 h-4 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"></path>
+                </svg>
+                <span class="font-medium">Scroll horizontally to see more</span>
+                <svg class="w-4 h-4 text-blue-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path>
+                </svg>
+            </div>
         </div>
-    </div>
+    <?php endif; ?>
 </div>
 
-<script>
-    $(function() {
-        Paginator({
-            itemsSelector: "table tbody tr",
-            // searchInputSelector: "", // remove if you don't have search
-            paginationSelector: "#projectPagenation",
-            itemsPerPage: 5
-        });
+<?php if (!empty($projects)): ?>
+    <script>
+        $(function() {
+            Paginator({
+                itemsSelector: "table tbody tr",
+                // searchInputSelector: "", // remove if you don't have search
+                paginationSelector: "#projectPagenation",
+                itemsPerPage: 5
+            });
 
-        $("#projectTableBody").removeClass("invisible");
-    });
-</script>
+            $("#projectTableBody").removeClass("invisible");
+        });
+    </script>
+<?php else: ?>
+    <script>
+        $(function() {
+            $("#projectTableBody").removeClass("invisible");
+        });
+    </script>
+<?php endif; ?>
