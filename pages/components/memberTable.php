@@ -135,7 +135,7 @@ if ($totalPages > 0) {
                         $primaryRole = strtolower($roleList[0]);
                         $roleLabel = implode(', ', $roleList);
                         ?>
-                        <tr class="hover:bg-gray-50 transition-colors duration-150"
+                        <tr class="member-row hover:bg-gray-50 transition-colors duration-150"
                             data-id="<?= (int)$m['id'] ?>"
                             data-name="<?= e($m['name']) ?>"
                             data-email="<?= e($m['email']) ?>"
@@ -212,6 +212,9 @@ if ($totalPages > 0) {
                             </td>
                         </tr>
                     <?php endforeach; ?>
+                    <tr id="memberSearchNoResult" style="display: none;">
+                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">No matching members on this page.</td>
+                    </tr>
                 <?php endif; ?>
             </tbody>
         </table>

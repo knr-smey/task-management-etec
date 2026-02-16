@@ -49,6 +49,14 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
         <input type="hidden" name="per_page" value="7">
 
         <div class="relative">
+            <input
+                id="memberSearch"
+                type="search"
+                placeholder="Search name or email"
+                class="bg-white border border-gray-300 text-gray-700 px-4 py-2.5 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 hover:border-gray-400 font-medium min-w-[220px]">
+        </div>
+
+        <div class="relative">
             <select id="filterRole" name="role"
                 class="appearance-none bg-white border border-gray-300 text-gray-700 px-4 py-2.5 pr-10 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 cursor-pointer hover:border-gray-400 font-medium min-w-[140px]">
                 <option value="" <?= $selectedRole === '' ? 'selected' : '' ?>>All Roles</option>
@@ -135,6 +143,41 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
             if (!link) return;
             showLoading();
         });
+
+        const searchInput = document.getElementById('memberSearch');
+        const tableBody = document.getElementById('membersTableBody');
+        const noSearchResultRow = document.getElementById('memberSearchNoResult');
+
+        if (searchInput && tableBody) {
+            const rows = Array.from(tableBody.querySelectorAll('tr.member-row'));
+
+            const runSearch = () => {
+                const keyword = (searchInput.value || '').trim().toLowerCase();
+                let visibleCount = 0;
+
+                rows.forEach((row) => {
+                    const name = (row.getAttribute('data-name') || '').toLowerCase();
+                    const email = (row.getAttribute('data-email') || '').toLowerCase();
+                    const matched = keyword === '' || name.includes(keyword) || email.includes(keyword);
+
+                    row.style.display = matched ? '' : 'none';
+                    if (matched) visibleCount += 1;
+                });
+
+                if (noSearchResultRow) {
+                    const showNoResult = keyword !== '' && visibleCount === 0;
+                    noSearchResultRow.style.display = showNoResult ? 'table-row' : 'none';
+                }
+            };
+
+            searchInput.addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                }
+            });
+
+            searchInput.addEventListener('input', runSearch);
+        }
     })();
 </script>
 
