@@ -23,7 +23,7 @@ class SuperAdminController
         return $currentUser;
     }
 
-    public static function getMember()
+    public static function getMember(): void
     {
         $currentUser = self::authorize();
 
@@ -33,12 +33,34 @@ class SuperAdminController
             $teamFilterId = $teamFilterId > 0 ? $teamFilterId : null;
         }
 
-        $members = User::all($currentUser, $teamFilterId);
+        $page = max(1, (int)($_GET['page'] ?? 1));
+        $perPage = 7;
+
+        $roleFilter = trim((string)($_GET['role'] ?? ''));
+        if (!in_array($roleFilter, ['super_admin', 'admin', 'instructor', 'member'], true)) {
+            $roleFilter = '';
+        }
+
+        $statusFilter = (string)($_GET['status'] ?? '');
+        if ($statusFilter !== '0' && $statusFilter !== '1') {
+            $statusFilter = '';
+        }
+
+        $memberFilters = [
+            'role' => $roleFilter,
+            'status' => $statusFilter,
+        ];
+
+        $result = User::paginate($currentUser, $teamFilterId, $memberFilters, $page, $perPage);
+
+        $members = $result['items'];
+        $membersPagination = $result['pagination'];
+        $memberStats = $result['stats'];
 
         require __DIR__ . '/../../pages/superAdmin/member.php';
     }
 
-    public static function create()
+    public static function create(): void
     {
         self::authorize();
 
@@ -52,29 +74,28 @@ class SuperAdminController
             ResponseService::json(false, 'Invalid CSRF token', [], 403);
         }
 
-        $name  = trim((string)($_POST['name'] ?? ''));
+        $name = trim((string)($_POST['name'] ?? ''));
         $email = trim((string)($_POST['email'] ?? ''));
         $password = (string)($_POST['password'] ?? '');
 
         $role = (int)($_POST['role'] ?? 0);
-
-        // ✅ this is course (Frontend/Backend) but only member uses it
         $course = $_POST['type'] ?? null;
-
-        // ✅ is_active: 1/0 (account open/close)
-        // Your form currently sends "status" dropdown (Approve/Reject/Pending). Change it to Active/Inactive.
         $isActive = isset($_POST['status']) ? (int)$_POST['status'] : User::ACTIVE;
 
-        if ($name === '') ResponseService::json(false, 'Name is required', [], 422);
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) ResponseService::json(false, 'Invalid email', [], 422);
-        if ($role <= 0) ResponseService::json(false, 'Role is required', [], 422);
+        if ($name === '') {
+            ResponseService::json(false, 'Name is required', [], 422);
+        }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            ResponseService::json(false, 'Invalid email', [], 422);
+        }
+        if ($role <= 0) {
+            ResponseService::json(false, 'Role is required', [], 422);
+        }
 
-        // password required ONLY on create
         if ($id === '' && $password === '') {
             ResponseService::json(false, 'Password is required', [], 422);
         }
 
-        // ✅ course rules:
         if ($role === User::ROLE_MEMBER) {
             if (trim((string)$course) === '') {
                 ResponseService::json(false, 'Course is required for Member', [], 422);
@@ -84,29 +105,34 @@ class SuperAdminController
         }
 
         $request = [
-            'name'      => $name,
-            'email'     => $email,
-            'password'  => $password,  // ✅ raw
-            'role'      => $role,
-            'course'    => $course,    // ✅ null for admin/super
-            'is_active' => $isActive   // ✅ 1/0
+            'name' => $name,
+            'email' => $email,
+            'password' => $password,
+            'role' => $role,
+            'course' => $course,
+            'is_active' => $isActive,
         ];
 
         if ($id === '') {
             $newId = User::create($request);
-            if ($newId) ResponseService::json(true, 'Create user successful', ['id' => $newId]);
+            if ($newId) {
+                ResponseService::json(true, 'Create user successful', ['id' => $newId]);
+            }
             ResponseService::json(false, 'Create failed', [], 500);
-        } else {
-            // if editing and password empty, remove it so model won't update password
-            if ($password === '') unset($request['password']);
-
-            $ok = User::update((int)$id, $request);
-            if ($ok) ResponseService::json(true, 'Update user successful', []);
-            ResponseService::json(false, 'Update failed', [], 500);
         }
+
+        if ($password === '') {
+            unset($request['password']);
+        }
+
+        $ok = User::update((int)$id, $request);
+        if ($ok) {
+            ResponseService::json(true, 'Update user successful', []);
+        }
+        ResponseService::json(false, 'Update failed', [], 500);
     }
 
-    public static function deleteMember()
+    public static function deleteMember(): void
     {
         self::authorize();
 
@@ -120,7 +146,9 @@ class SuperAdminController
         }
 
         $ok = User::delete($id);
-        if ($ok) ResponseService::json(true, 'Delete user successful', []);
+        if ($ok) {
+            ResponseService::json(true, 'Delete user successful', []);
+        }
         ResponseService::json(false, 'Delete failed', [], 500);
     }
 }
