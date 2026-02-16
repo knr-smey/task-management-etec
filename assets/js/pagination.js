@@ -36,14 +36,16 @@ window.Paginator = function (options) {
     $pagination.empty();
     if (totalPages <= 1) return;
 
-    const ellipsis = `<span class="px-2 py-1 text-gray-500">...</span>`;
+    $pagination.addClass("items-center");
+
+    const ellipsis = `<span class="px-1 py-0.5 text-xs text-gray-500">...</span>`;
 
     function pageBtn(page, label = page) {
       const isActive = page === currentPage;
       const $btn = $(`
         <button type="button"
-          class="px-3 py-1 rounded border ${
-            isActive ? "bg-green-600 text-white" : "bg-white hover:bg-gray-100"
+          class="px-2.5 py-0.5 rounded border text-xs leading-5 ${
+            isActive ? "bg-green-600 text-white border-green-600" : "bg-white hover:bg-gray-100"
           }">
           ${label}
         </button>
@@ -57,11 +59,11 @@ window.Paginator = function (options) {
       return $btn;
     }
 
-    const $prev = $(`<button type="button" class="px-3 py-1 rounded border bg-white hover:bg-gray-100">Prev</button>`);
+    const $prev = $(`<button type="button" class="px-2.5 py-0.5 rounded border text-xs leading-5 bg-white hover:bg-gray-100">Prev</button>`);
     if (currentPage === 1) $prev.prop("disabled", true).addClass("opacity-50 cursor-not-allowed");
     else $prev.on("click", function () { currentPage--; render(); });
 
-    const $next = $(`<button type="button" class="px-3 py-1 rounded border bg-white hover:bg-gray-100">Next</button>`);
+    const $next = $(`<button type="button" class="px-2.5 py-0.5 rounded border text-xs leading-5 bg-white hover:bg-gray-100">Next</button>`);
     if (currentPage === totalPages) $next.prop("disabled", true).addClass("opacity-50 cursor-not-allowed");
     else $next.on("click", function () { currentPage++; render(); });
 

@@ -301,7 +301,7 @@
     </div>
 
     <div class="px-6 py-4 border-t border-gray-100">
-        <div id="tasksPagination" class="flex gap-2 flex-wrap"></div>
+        <div id="tasksPagination" class="flex gap-1.5 flex-wrap"></div>
     </div>
 </div>
 

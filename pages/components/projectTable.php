@@ -350,7 +350,7 @@
                     </svg>
                     <span class="font-semibold">Showing projects</span>
                 </div>
-                <div id="projectPagenation" class="flex gap-2 flex-wrap"></div>
+                <div id="projectPagenation" class="flex gap-1.5 flex-wrap"></div>
             </div>
         </div>
 
