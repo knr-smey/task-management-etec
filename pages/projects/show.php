@@ -262,6 +262,18 @@ require_once __DIR__ . '/../../includes/layouts/app.php';
             closeLogTimeModal();
         });
 
+        $logTimeModal.on("click", function(e) {
+            if (e.target === this) {
+                closeLogTimeModal();
+            }
+        });
+
+        $(document).on("keydown", function(e) {
+            if (e.key === "Escape" && $logTimeModal.hasClass("flex")) {
+                closeLogTimeModal();
+            }
+        });
+
         $logTimeForm.on("submit", function(e) {
             e.preventDefault();
 
