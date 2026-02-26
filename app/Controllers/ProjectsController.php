@@ -145,7 +145,7 @@ class ProjectsController
         // tasks under project (hide done tasks in table)
         $tasks = array_values(array_filter(
             Task::allByProject((int)$project['id']),
-            static fn(array $task): bool => strtolower((string)($task['status_name'] ?? '')) !== 'done'
+            // static fn(array $task): bool => strtolower((string)($task['status_name'] ?? '')) !== 'done'
         ));
 
         // task statuses for actions

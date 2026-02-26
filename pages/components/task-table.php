@@ -195,20 +195,19 @@
                                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                                                     </svg>
                                                 </button>
-
-                                                <?php if (!$isDone): ?>
-                                                    <button class="menu-close-task group w-full text-left px-4 py-3 text-sm hover:bg-emerald-50 transition-colors flex items-center gap-3">
-                                                        <div class="w-9 h-9 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 flex items-center justify-center transition-colors">
-                                                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                                                            </svg>
-                                                        </div>
-                                                        <div class="flex-1 text-left">
-                                                            <div class="font-medium text-gray-900">Close Task</div>
-                                                            <div class="text-xs text-gray-500">Mark as done</div>
-                                                        </div>
-                                                    </button>
-                                                <?php endif; ?>
+                                    
+                                                <button class="menu-close-task group w-full text-left px-4 py-3 text-sm hover:bg-emerald-50 transition-colors flex items-center gap-3">
+                                                    <div class="w-9 h-9 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 flex items-center justify-center transition-colors">
+                                                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                        </svg>
+                                                    </div>
+                                                    <div class="flex-1 text-left">
+                                                        <div class="font-medium text-gray-900">Close Task</div>
+                                                        <div class="text-xs text-gray-500">Mark as done</div>
+                                                    </div>
+                                                </button>
+                                                
 
                                                 <button class="menu-log-time group w-full text-left px-4 py-3 text-sm hover:bg-amber-50 transition-colors flex items-center gap-3">
                                                     <div class="w-9 h-9 rounded-lg bg-amber-100 group-hover:bg-amber-200 flex items-center justify-center transition-colors">
